@@ -26,7 +26,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Exponer funciones y db globalmente para la app
     window.db = db;
     window.collection = collection;
     window.getDocs = getDocs;
@@ -34,7 +33,6 @@
     window.doc = doc;
     window.deleteDoc = deleteDoc;
 
-    // Disparar carga inicial de datos desde Firestore
     if (window.initAppFromFirebase) {
       window.initAppFromFirebase();
     }
@@ -64,13 +62,11 @@
       </div>
 
       <div class="flex items-center space-x-2">
-        <!-- Botón Cambio de Vista -->
         <button id="viewToggleBtn" onclick="toggleAdminView()" class="flex items-center space-x-2 text-sm font-medium text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
           <i data-lucide="user-cog" class="w-4 h-4"></i>
           <span id="viewToggleText" class="hidden sm:inline">Panel Vendedor</span>
         </button>
 
-        <!-- Botón Carrito (Vista Cliente) -->
         <button id="cartBtn" onclick="toggleCartModal()" class="relative bg-indigo-600 hover:bg-indigo-700 text-white p-2.5 rounded-xl transition-all shadow-md hover:shadow-indigo-200">
           <i data-lucide="shopping-cart" class="w-5 h-5"></i>
           <span id="cartBadge" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white hidden">0</span>
@@ -79,7 +75,7 @@
     </div>
   </header>
 
-  <!-- BANNER PRINCIPAL / SLOGAN (VISTA CLIENTE) -->
+  <!-- BANNER PRINCIPAL / SLOGAN -->
   <section id="heroBanner" class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-indigo-950 text-white py-10 px-4 transition-all">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
       <div class="space-y-2 text-center md:text-left">
@@ -98,24 +94,18 @@
 
     <!-- VISTA CLIENTE: CATÁLOGO -->
     <div id="clientView" class="space-y-6">
-      <!-- Filtros y Búsqueda -->
       <div class="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
         <div class="relative w-full sm:w-80">
           <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
           <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Buscar producto..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
         </div>
-        <div class="flex items-center space-x-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 custom-scrollbar" id="categoryFilters">
-          <!-- Categorías generadas por JS -->
-        </div>
+        <div class="flex items-center space-x-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 custom-scrollbar" id="categoryFilters"></div>
       </div>
 
-      <!-- Grid de Productos -->
-      <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <!-- Productos generados por JS -->
-      </div>
+      <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
     </div>
 
-    <!-- VISTA VENDEDOR: PANEL DE ADMINISTRACIÓN -->
+    <!-- VISTA VENDEDOR -->
     <div id="adminView" class="hidden space-y-6">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
         <div>
@@ -123,16 +113,11 @@
           <p class="text-xs text-gray-500">Gestiona tus productos, ajustes e imagen de tienda</p>
         </div>
         <div class="flex flex-wrap gap-2">
-          <button onclick="switchAdminTab('products')" id="tabProductsBtn" class="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 text-white transition-all">
-            Productos
-          </button>
-          <button onclick="switchAdminTab('settings')" id="tabSettingsBtn" class="px-4 py-2 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">
-            Configuración
-          </button>
+          <button onclick="switchAdminTab('products')" id="tabProductsBtn" class="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 text-white transition-all">Productos</button>
+          <button onclick="switchAdminTab('settings')" id="tabSettingsBtn" class="px-4 py-2 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Configuración</button>
         </div>
       </div>
 
-      <!-- SUBTAB: PRODUCTOS -->
       <div id="adminTabProducts" class="space-y-6">
         <div class="flex justify-between items-center">
           <h3 class="font-bold text-gray-800">Inventario de Productos</h3>
@@ -154,19 +139,14 @@
                   <th class="py-3 px-4 text-right">Acciones</th>
                 </tr>
               </thead>
-              <tbody id="adminProductsTable" class="divide-y divide-gray-100 text-sm">
-                <!-- Filas de tabla generadas por JS -->
-              </tbody>
+              <tbody id="adminProductsTable" class="divide-y divide-gray-100 text-sm"></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- SUBTAB: CONFIGURACIÓN -->
       <div id="adminTabSettings" class="hidden space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-          <!-- Configuración General y WhatsApp -->
           <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
             <h3 class="font-bold text-gray-900 border-b pb-2 flex items-center space-x-2">
               <i data-lucide="phone" class="w-4 h-4 text-indigo-600"></i>
@@ -177,35 +157,28 @@
               <input type="text" id="settingShopName" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-1">Número de WhatsApp (con código de país)</label>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Número de WhatsApp</label>
               <input type="text" id="settingPhone" placeholder="Ej: 584121234567" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-              <p class="text-[11px] text-gray-400 mt-1">Ingresa el código de país sin el símbolo "+" (Ej: 58 para Venezuela).</p>
             </div>
-            <button onclick="saveShopSettings()" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-xl text-sm hover:bg-indigo-700 transition-all">
-              Guardar Datos Básicos
-            </button>
+            <button onclick="saveShopSettings()" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-xl text-sm hover:bg-indigo-700 transition-all">Guardar Datos Básicos</button>
           </div>
 
-          <!-- Configuración de Seguridad / PIN -->
           <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
             <h3 class="font-bold text-gray-900 border-b pb-2 flex items-center space-x-2">
               <i data-lucide="lock" class="w-4 h-4 text-indigo-600"></i>
               <span>Seguridad (Clave del Vendedor)</span>
             </h3>
             <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-1">Nueva Clave / PIN de Acceso</label>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Nueva Clave / PIN</label>
               <input type="password" id="settingPin" placeholder="Ej: 1234" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
             </div>
             <div>
               <label class="block text-xs font-semibold text-gray-700 mb-1">Confirmar Nueva Clave</label>
               <input type="password" id="settingPinConfirm" placeholder="Ej: 1234" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
             </div>
-            <button onclick="savePinSettings()" class="w-full bg-gray-900 text-white font-semibold py-2 rounded-xl text-sm hover:bg-black transition-all">
-              Actualizar Contraseña
-            </button>
+            <button onclick="savePinSettings()" class="w-full bg-gray-900 text-white font-semibold py-2 rounded-xl text-sm hover:bg-black transition-all">Actualizar Contraseña</button>
           </div>
 
-          <!-- Configuración de Banner y Slogan -->
           <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4 md:col-span-2">
             <h3 class="font-bold text-gray-900 border-b pb-2 flex items-center space-x-2">
               <i data-lucide="image" class="w-4 h-4 text-indigo-600"></i>
@@ -221,52 +194,38 @@
                 <input type="text" id="settingBannerSubtitle" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
               </div>
             </div>
-
             <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-1">Imagen de Portada / Slogan Principal</label>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Imagen de Portada</label>
               <div class="flex flex-col sm:flex-row gap-3 items-center">
-                <input type="text" id="settingBannerImgUrl" placeholder="URL de la imagen (https://...)" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                <span class="text-xs text-gray-400 font-semibold">O</span>
+                <input type="text" id="settingBannerImgUrl" placeholder="URL de la imagen" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                 <label class="w-full sm:w-auto px-4 py-2 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-xl text-xs font-bold cursor-pointer hover:bg-indigo-100 text-center whitespace-nowrap">
                   <span>Seleccionar de Galería</span>
                   <input type="file" id="settingBannerFileInput" accept="image/*" onchange="handleBannerFileSelect(event)" class="hidden">
                 </label>
               </div>
             </div>
-
-            <button onclick="saveBannerSettings()" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-xl text-sm hover:bg-indigo-700 transition-all">
-              Guardar Imagen y Slogan
-            </button>
+            <button onclick="saveBannerSettings()" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-xl text-sm hover:bg-indigo-700 transition-all">Guardar Imagen y Slogan</button>
           </div>
-
         </div>
       </div>
     </div>
-
   </main>
 
-  <!-- MODAL CARRITO / CHECKOUT -->
+  <!-- MODAL CARRITO -->
   <div id="cartModal" class="fixed inset-0 bg-black/50 z-50 flex justify-end hidden transition-opacity">
     <div class="bg-white w-full max-w-md h-full flex flex-col shadow-2xl">
-      <!-- Header Modal -->
       <div class="p-4 border-b flex items-center justify-between bg-gray-50">
         <div class="flex items-center space-x-2">
           <i data-lucide="shopping-bag" class="w-5 h-5 text-indigo-600"></i>
           <h3 class="font-bold text-gray-900">Carrito de Compras</h3>
         </div>
-        <button onclick="toggleCartModal()" class="text-gray-400 hover:text-gray-600 p-1">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <button onclick="toggleCartModal()" class="text-gray-400 hover:text-gray-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
-      <!-- Items o Lista -->
       <div id="cartStepItems" class="flex-grow overflow-y-auto p-4 space-y-4 custom-scrollbar">
-        <div id="cartList" class="space-y-3">
-          <!-- Productos en carrito por JS -->
-        </div>
+        <div id="cartList" class="space-y-3"></div>
       </div>
 
-      <!-- Formulario de Checkout paso 2 -->
       <div id="cartStepCheckout" class="flex-grow overflow-y-auto p-4 space-y-4 hidden custom-scrollbar">
         <button onclick="goToCartStep('items')" class="text-xs text-indigo-600 font-semibold flex items-center space-x-1 mb-2">
           <i data-lucide="arrow-left" class="w-3 h-3"></i>
@@ -274,150 +233,109 @@
         </button>
 
         <h4 class="font-bold text-gray-800 border-b pb-2">Datos para la Entrega</h4>
-        
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Nombre Completo *</label>
-          <input type="text" id="checkoutName" required placeholder="Tu nombre" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          <input type="text" id="checkoutName" required placeholder="Tu nombre" class="w-full px-3 py-2 border rounded-xl text-sm outline-none">
         </div>
-
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Teléfono *</label>
-          <input type="tel" id="checkoutPhone" required placeholder="Ej: 04121234567" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          <input type="tel" id="checkoutPhone" required placeholder="Ej: 04121234567" class="w-full px-3 py-2 border rounded-xl text-sm outline-none">
         </div>
-
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Dirección de Entrega *</label>
-          <textarea id="checkoutAddress" required rows="2" placeholder="Calle, número, punto de referencia..." class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+          <textarea id="checkoutAddress" required rows="2" placeholder="Dirección..." class="w-full px-3 py-2 border rounded-xl text-sm outline-none"></textarea>
         </div>
 
         <h4 class="font-bold text-gray-800 border-b pb-2 pt-2">Método de Pago</h4>
-        
         <div class="space-y-2">
-          <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-            <input type="radio" name="paymentMethod" value="Divisa" checked class="text-indigo-600 focus:ring-indigo-500" onchange="togglePaymentNotes()">
-            <div class="ml-3">
-              <span class="block text-sm font-semibold text-gray-800">Divisas (Efectivo $)</span>
-              <span class="block text-xs text-gray-500">Pago en efectivo al momento de recibir</span>
-            </div>
+          <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50">
+            <input type="radio" name="paymentMethod" value="Divisa" checked class="text-indigo-600" onchange="togglePaymentNotes()">
+            <div class="ml-3"><span class="block text-sm font-semibold text-gray-800">Divisas (Efectivo $)</span></div>
           </label>
-
-          <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-            <input type="radio" name="paymentMethod" value="Efectivo" class="text-indigo-600 focus:ring-indigo-500" onchange="togglePaymentNotes()">
-            <div class="ml-3">
-              <span class="block text-sm font-semibold text-gray-800">Efectivo Moneda Local</span>
-              <span class="block text-xs text-gray-500">Pago en efectivo local al entregar</span>
-            </div>
+          <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50">
+            <input type="radio" name="paymentMethod" value="Efectivo" class="text-indigo-600" onchange="togglePaymentNotes()">
+            <div class="ml-3"><span class="block text-sm font-semibold text-gray-800">Efectivo Moneda Local</span></div>
           </label>
-
-          <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-            <input type="radio" name="paymentMethod" value="Pago Móvil" class="text-indigo-600 focus:ring-indigo-500" onchange="togglePaymentNotes()">
-            <div class="ml-3">
-              <span class="block text-sm font-semibold text-gray-800">Pago Móvil / QR Code</span>
-              <span class="block text-xs text-gray-500">Te enviamos el QR / Datos por WhatsApp</span>
-            </div>
+          <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50">
+            <input type="radio" name="paymentMethod" value="Pago Móvil" class="text-indigo-600" onchange="togglePaymentNotes()">
+            <div class="ml-3"><span class="block text-sm font-semibold text-gray-800">Pago Móvil / QR Code</span></div>
           </label>
-
-          <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-            <input type="radio" name="paymentMethod" value="Binance" class="text-indigo-600 focus:ring-indigo-500" onchange="togglePaymentNotes()">
-            <div class="ml-3">
-              <span class="block text-sm font-semibold text-gray-800">Binance Pay (USDT)</span>
-              <span class="block text-xs text-gray-500">Transferencia USDT vía Binance</span>
-            </div>
+          <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50">
+            <input type="radio" name="paymentMethod" value="Binance" class="text-indigo-600" onchange="togglePaymentNotes()">
+            <div class="ml-3"><span class="block text-sm font-semibold text-gray-800">Binance Pay (USDT)</span></div>
           </label>
         </div>
-
         <div id="paymentNoteBox" class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1 hidden">
-          <p class="font-semibold" id="paymentNoteTitle">Nota sobre la forma de pago:</p>
-          <p id="paymentNoteText">Al confirmar el pedido, te enviaremos por WhatsApp los datos o el código QR para realizar la transferencia.</p>
+          <p class="font-semibold" id="paymentNoteTitle">Nota:</p>
+          <p id="paymentNoteText">Te enviaremos los datos por WhatsApp.</p>
         </div>
       </div>
 
-      <!-- Footer Modal con Total -->
       <div class="p-4 border-t bg-gray-50 space-y-3">
         <div class="flex justify-between items-center text-lg font-bold text-gray-900">
           <span>Total:</span>
           <span id="cartTotalDisplay">$0.00</span>
         </div>
-
-        <button id="btnCartNext" onclick="goToCartStep('checkout')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center space-x-2 transition-all">
-          <span>Continuar al Pago</span>
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
-        </button>
-
-        <button id="btnSendOrder" onclick="sendOrderToWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center space-x-2 transition-all hidden">
-          <i data-lucide="send" class="w-4 h-4"></i>
-          <span>Enviar Pedido por WhatsApp</span>
-        </button>
+        <button id="btnCartNext" onclick="goToCartStep('checkout')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center space-x-2">Continuar al Pago</button>
+        <button id="btnSendOrder" onclick="sendOrderToWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center space-x-2 hidden">Enviar Pedido por WhatsApp</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL EDITAR / CREAR PRODUCTO (PANEL VENDEDOR) -->
+  <!-- MODAL PRODUCTO -->
   <div id="productModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex justify-between items-center border-b pb-3">
         <h3 id="productModalTitle" class="font-bold text-lg text-gray-900">Nuevo Producto</h3>
-        <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-600">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
       <form id="productForm" onsubmit="handleProductSubmit(event)" class="space-y-3">
         <input type="hidden" id="prodId">
-        
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Nombre del Producto *</label>
-          <input type="text" id="prodName" required class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Nombre *</label>
+          <input type="text" id="prodName" required class="w-full px-3 py-2 border rounded-xl text-sm outline-none">
         </div>
-
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-gray-700 mb-1">Precio ($) *</label>
-            <input type="number" step="0.01" id="prodPrice" required class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+            <input type="number" step="0.01" id="prodPrice" required class="w-full px-3 py-2 border rounded-xl text-sm outline-none">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">Stock Disponible *</label>
-            <input type="number" id="prodStock" min="0" required class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Stock *</label>
+            <input type="number" id="prodStock" min="0" required class="w-full px-3 py-2 border rounded-xl text-sm outline-none">
           </div>
         </div>
-
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Categoría *</label>
-          <input type="text" id="prodCategory" required placeholder="Ej: Bebidas, Calzado..." class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          <input type="text" id="prodCategory" required class="w-full px-3 py-2 border rounded-xl text-sm outline-none">
         </div>
-
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Imagen del Producto</label>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Imagen</label>
           <div class="space-y-2">
-            <input type="text" id="prodImage" placeholder="URL de la imagen (https://...)" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-            <div class="flex items-center justify-between bg-gray-50 p-2 rounded-xl border border-dashed border-gray-300">
-              <span class="text-xs text-gray-500">O selecciona una foto:</span>
-              <label class="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-semibold cursor-pointer hover:bg-indigo-100 transition-colors">
-                <span>Seleccionar de Galería</span>
-                <input type="file" id="prodFileInput" accept="image/*" onchange="handleProductFileSelect(event)" class="hidden">
-              </label>
-            </div>
-            <!-- Vista Previa Imagen -->
+            <input type="text" id="prodImage" placeholder="URL de la imagen" class="w-full px-3 py-2 border rounded-xl text-sm outline-none">
+            <label class="block w-full px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-semibold cursor-pointer hover:bg-indigo-100 text-center">
+              <span>Seleccionar de Galería</span>
+              <input type="file" id="prodFileInput" accept="image/*" onchange="handleProductFileSelect(event)" class="hidden">
+            </label>
             <div id="prodImagePreviewContainer" class="hidden w-20 h-20 rounded-xl overflow-hidden border">
               <img id="prodImagePreview" src="" class="w-full h-full object-cover">
             </div>
           </div>
         </div>
-
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Descripción</label>
-          <textarea id="prodDescription" rows="2" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+          <textarea id="prodDescription" rows="2" class="w-full px-3 py-2 border rounded-xl text-sm outline-none"></textarea>
         </div>
-
         <div class="flex space-x-2 pt-2">
-          <button type="button" onclick="closeProductModal()" class="w-1/2 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition-all">Cancelar</button>
-          <button type="submit" class="w-1/2 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-all">Guardar</button>
+          <button type="button" onclick="closeProductModal()" class="w-1/2 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold">Cancelar</button>
+          <button type="submit" class="w-1/2 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold">Guardar</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- SCRIPT LÓGICA DE APLICACIÓN CON FIREBASE -->
+  <!-- SCRIPT -->
   <script>
     let products = [];
     let cart = [];
@@ -432,10 +350,9 @@
 
     const DEFAULT_PRODUCTS = [
       { id: '1', name: 'Zapatos Deportivos', price: 45.00, stock: 8, category: 'Calzado', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=80', description: 'Zapatos de correr cómodos y ligeros.' },
-      { id: '2', name: 'Camiseta de Algodón', price: 15.50, stock: 15, category: 'Ropa', image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80', description: '100% algodón, disponible en varios talles.' }
+      { id: '2', name: 'Camiseta de Algodón', price: 15.50, stock: 15, category: 'Ropa', image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80', description: '100% algodón.' }
     ];
 
-    // Función que se ejecuta al cargar Firebase
     window.initAppFromFirebase = async function() {
       try {
         await loadDataFromCloud();
@@ -451,23 +368,17 @@
 
     async function loadDataFromCloud() {
       if (!window.db) return;
-      
-      // Cargar productos
       const querySnapshot = await window.getDocs(window.collection(window.db, "products"));
       if (querySnapshot.empty) {
-        // Si está vacío, guardamos los productos por defecto en Firebase
         products = DEFAULT_PRODUCTS;
         for (let p of products) {
           await window.setDoc(window.doc(window.db, "products", p.id), p);
         }
       } else {
         products = [];
-        querySnapshot.forEach((doc) => {
-          products.push(doc.data());
-        });
+        querySnapshot.forEach((doc) => { products.push(doc.data()); });
       }
 
-      // Cargar configuración
       const configSnap = await window.getDocs(window.collection(window.db, "config"));
       configSnap.forEach((doc) => {
         const data = doc.data();
@@ -556,7 +467,6 @@
     function renderProducts() {
       const grid = document.getElementById('productsGrid');
       const search = document.getElementById('searchInput').value.toLowerCase();
-      
       const categories = ['Todos', ...new Set(products.map(p => p.category))];
       renderCategoryFilters(categories);
 
@@ -567,12 +477,7 @@
       });
 
       if (filtered.length === 0) {
-        grid.innerHTML = `
-          <div class="col-span-full py-12 text-center text-gray-400">
-            <i data-lucide="package-search" class="w-12 h-12 mx-auto mb-2 opacity-50"></i>
-            <p>No se encontraron productos disponibles.</p>
-          </div>
-        `;
+        grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400"><p>No se encontraron productos.</p></div>`;
         lucide.createIcons();
         return;
       }
@@ -583,30 +488,21 @@
           <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
             <div>
               <div class="relative h-48 bg-gray-100 overflow-hidden">
-                <img src="${p.image || 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=500&auto=format&fit=crop&q=80'}" alt="${p.name}" class="w-full h-full object-cover">
-                <span class="absolute top-2 left-2 bg-white/90 backdrop-blur-md text-gray-700 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
-                  ${p.category}
-                </span>
-                ${isOutOfStock ? `
-                  <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
-                    <span class="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow">Agotado</span>
-                  </div>
-                ` : ''}
+                <img src="${p.image || 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=500&auto=format&fit=crop&q=80'}" class="w-full h-full object-cover">
+                <span class="absolute top-2 left-2 bg-white/90 text-gray-700 text-[10px] font-bold px-2.5 py-1 rounded-full">${p.category}</span>
+                ${isOutOfStock ? '<div class="absolute inset-0 bg-black/60 flex items-center justify-center"><span class="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">Agotado</span></div>' : ''}
               </div>
               <div class="p-4 space-y-2">
-                <h3 class="font-bold text-gray-900 text-base leading-snug">${p.name}</h3>
+                <h3 class="font-bold text-gray-900 text-base">${p.name}</h3>
                 <p class="text-xs text-gray-500 line-clamp-2">${p.description}</p>
                 <div class="text-xs font-semibold ${isOutOfStock ? 'text-red-500' : 'text-emerald-600'}">
-                  ${isOutOfStock ? 'Stock: 0' : Stock disponible: ${p.stock}}
+                  ${isOutOfStock ? 'Stock: 0' : `Stock disponible: ${p.stock}`}
                 </div>
               </div>
             </div>
             <div class="p-4 pt-0 flex items-center justify-between gap-2">
               <span class="text-lg font-extrabold text-gray-900">$${parseFloat(p.price).toFixed(2)}</span>
-              <button 
-                onclick="addToCart('${p.id}')" 
-                ${isOutOfStock ? 'disabled' : ''} 
-                class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all shadow-sm">
+              <button onclick="addToCart('${p.id}')" ${isOutOfStock ? 'disabled' : ''} class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5">
                 <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
                 <span>Agregar</span>
               </button>
@@ -614,18 +510,13 @@
           </div>
         `;
       }).join('');
-
       lucide.createIcons();
     }
 
     function renderCategoryFilters(categories) {
       const container = document.getElementById('categoryFilters');
       container.innerHTML = categories.map(cat => `
-        <button 
-          onclick="setCategory('${cat}')" 
-          class="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${currentCategory === cat ? 'bg-indigo-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
-          ${cat}
-        </button>
+        <button onclick="setCategory('${cat}')" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${currentCategory === cat ? 'bg-indigo-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">${cat}</button>
       `).join('');
     }
 
@@ -637,19 +528,13 @@
     function addToCart(productId) {
       const product = products.find(p => p.id === productId);
       if (!product || product.stock <= 0) return;
-
       const cartItem = cart.find(item => item.id === productId);
       if (cartItem) {
-        if (cartItem.qty < product.stock) {
-          cartItem.qty++;
-        } else {
-          alert(Límite alcanzado. Solo hay ${product.stock} unidades disponibles.);
-          return;
-        }
+        if (cartItem.qty < product.stock) cartItem.qty++;
+        else { alert(`Límite alcanzado.`); return; }
       } else {
         cart.push({ ...product, qty: 1 });
       }
-
       renderCart();
       toggleCartModal(true);
     }
@@ -657,18 +542,11 @@
     function updateCartQty(productId, change) {
       const cartItem = cart.find(item => item.id === productId);
       const product = products.find(p => p.id === productId);
-
       if (cartItem && product) {
         const newQty = cartItem.qty + change;
-        if (newQty > product.stock) {
-          alert(Límite de stock disponible (${product.stock}).);
-          return;
-        }
-        if (newQty <= 0) {
-          cart = cart.filter(item => item.id !== productId);
-        } else {
-          cartItem.qty = newQty;
-        }
+        if (newQty > product.stock) { alert(`Stock máximo alcanzado.`); return; }
+        if (newQty <= 0) cart = cart.filter(item => item.id !== productId);
+        else cartItem.qty = newQty;
       }
       renderCart();
     }
@@ -677,7 +555,6 @@
       const cartList = document.getElementById('cartList');
       const badge = document.getElementById('cartBadge');
       const totalDisplay = document.getElementById('cartTotalDisplay');
-
       const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
       const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
@@ -687,39 +564,28 @@
       } else {
         badge.classList.add('hidden');
       }
-
-      totalDisplay.innerText = $${totalPrice.toFixed(2)};
+      totalDisplay.innerText = `$${totalPrice.toFixed(2)}`;
 
       if (cart.length === 0) {
-        cartList.innerHTML = `
-          <div class="py-12 text-center text-gray-400">
-            <i data-lucide="shopping-bag" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
-            <p class="text-sm">Tu carrito está vacío</p>
-          </div>
-        `;
+        cartList.innerHTML = `<div class="py-12 text-center text-gray-400"><p class="text-sm">Tu carrito está vacío</p></div>`;
       } else {
         cartList.innerHTML = cart.map(item => `
           <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
             <div class="flex items-center space-x-3">
-              <img src="${item.image || 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=500&auto=format&fit=crop&q=80'}" class="w-12 h-12 object-cover rounded-lg">
+              <img src="${item.image || ''}" class="w-12 h-12 object-cover rounded-lg">
               <div>
                 <h4 class="font-bold text-gray-800 text-xs">${item.name}</h4>
                 <p class="text-xs text-gray-500">$${parseFloat(item.price).toFixed(2)} c/u</p>
               </div>
             </div>
             <div class="flex items-center space-x-2">
-              <button onclick="updateCartQty('${item.id}', -1)" class="p-1 bg-white border rounded-lg hover:bg-gray-100 text-gray-600">
-                <i data-lucide="minus" class="w-3 h-3"></i>
-              </button>
+              <button onclick="updateCartQty('${item.id}', -1)" class="p-1 bg-white border rounded-lg">-</button>
               <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
-              <button onclick="updateCartQty('${item.id}', 1)" class="p-1 bg-white border rounded-lg hover:bg-gray-100 text-gray-600">
-                <i data-lucide="plus" class="w-3 h-3"></i>
-              </button>
+              <button onclick="updateCartQty('${item.id}', 1)" class="p-1 bg-white border rounded-lg">+</button>
             </div>
           </div>
         `).join('');
       }
-
       lucide.createIcons();
     }
 
@@ -741,10 +607,7 @@
       const btnSend = document.getElementById('btnSendOrder');
 
       if (step === 'checkout') {
-        if (cart.length === 0) {
-          alert("Agrega al menos un producto al carrito.");
-          return;
-        }
+        if (cart.length === 0) { alert("Agrega productos."); return; }
         stepItems.classList.add('hidden');
         stepCheckout.classList.remove('hidden');
         btnNext.classList.add('hidden');
@@ -762,14 +625,9 @@
       const selected = document.querySelector('input[name="paymentMethod"]:checked').value;
       const noteBox = document.getElementById('paymentNoteBox');
       const noteText = document.getElementById('paymentNoteText');
-
       if (selected === 'Pago Móvil' || selected === 'Binance') {
         noteBox.classList.remove('hidden');
-        if (selected === 'Pago Móvil') {
-          noteText.innerText = "Al confirmar tu pedido te enviaremos por WhatsApp la imagen del código QR y la información para realizar el Pago Móvil.";
-        } else {
-          noteText.innerText = "Te enviaremos los datos de Binance Pay (ID/Email) por WhatsApp para concretar tu pago en USDT.";
-        }
+        noteText.innerText = selected === 'Pago Móvil' ? "Te enviaremos el QR por WhatsApp." : "Te enviaremos los datos de Binance Pay por WhatsApp.";
       } else {
         noteBox.classList.add('hidden');
       }
@@ -781,34 +639,18 @@
       const address = document.getElementById('checkoutAddress').value.trim();
       const payment = document.querySelector('input[name="paymentMethod"]:checked').value;
 
-      if (!name || !phone || !address) {
-        alert("Por favor completa tu nombre, teléfono y dirección de entrega.");
-        return;
-      }
+      if (!name || !phone || !address) { alert("Completa los datos obligatorios."); return; }
 
-      let message = 🛒 *NUEVO PEDIDO - ${shopName.toUpperCase()}*\n\n;
-      message += 👤 *Cliente:* ${name}\n;
-      message += 📞 *Teléfono:* ${phone}\n;
-      message += 📍 *Dirección:* ${address}\n;
-      message += 💳 *Método de Pago:* ${payment}\n\n;
-      message += 📦 *PRODUCTOS:*\n;
-
+      let message = `🛒 *NUEVO PEDIDO - ${shopName.toUpperCase()}*\n\n👤 *Cliente:* ${name}\n📞 *Teléfono:* ${phone}\n📍 *Dirección:* ${address}\n💳 *Pago:* ${payment}\n\n📦 *PRODUCTOS:*\n`;
       let total = 0;
       cart.forEach(item => {
         const subtotal = item.price * item.qty;
         total += subtotal;
-        message += • ${item.qty}x ${item.name} - $${subtotal.toFixed(2)}\n;
+        message += `• ${item.qty}x ${item.name} - $${subtotal.toFixed(2)}\n`;
       });
+      message += `\n💰 *TOTAL:* $${total.toFixed(2)}`;
 
-      message += \n💰 *TOTAL A PAGAR:* $${total.toFixed(2)}\n\n;
-      if (payment === 'Pago Móvil' || payment === 'Binance') {
-        message += 📌 *Nota:* Quedo a la espera de los datos / QR code para realizar el pago.;
-      }
-
-      const encodedMsg = encodeURIComponent(message);
-      const whatsappUrl = https://wa.me/${sellerPhone}?text=${encodedMsg};
-
-      window.open(whatsappUrl, '_blank');
+      window.open(`https://wa.me/${sellerPhone}?text=${encodeURIComponent(message)}`, '_blank');
       cart = [];
       renderCart();
       toggleCartModal(false);
@@ -817,28 +659,20 @@
     function renderAdminProducts() {
       const tbody = document.getElementById('adminProductsTable');
       tbody.innerHTML = products.map(p => `
-        <tr class="hover:bg-gray-50 transition-colors">
+        <tr class="hover:bg-gray-50">
           <td class="py-3 px-4 flex items-center space-x-3">
-            <img src="${p.image || 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=500&auto=format&fit=crop&q=80'}" class="w-10 h-10 object-cover rounded-lg">
-            <div>
-              <p class="font-bold text-gray-800">${p.name}</p>
-              <p class="text-xs text-gray-400 line-clamp-1">${p.description}</p>
-            </div>
+            <img src="${p.image || ''}" class="w-10 h-10 object-cover rounded-lg">
+            <div><p class="font-bold text-gray-800">${p.name}</p></div>
           </td>
-          <td class="py-3 px-4 font-semibold text-gray-600">${p.category}</td>
-          <td class="py-3 px-4 font-bold text-gray-900">$${parseFloat(p.price).toFixed(2)}</td>
-          <td class="py-3 px-4 font-semibold ${p.stock <= 0 ? 'text-red-500' : 'text-gray-700'}">${p.stock}</td>
+          <td class="py-3 px-4">${p.category}</td>
+          <td class="py-3 px-4">$${parseFloat(p.price).toFixed(2)}</td>
+          <td class="py-3 px-4">${p.stock}</td>
           <td class="py-3 px-4 text-right space-x-2">
-            <button onclick="openProductModal('${p.id}')" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg">
-              <i data-lucide="pencil" class="w-4 h-4"></i>
-            </button>
-            <button onclick="deleteProduct('${p.id}')" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg">
-              <i data-lucide="trash-2" class="w-4 h-4"></i>
-            </button>
+            <button onclick="openProductModal('${p.id}')" class="text-indigo-600"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+            <button onclick="deleteProduct('${p.id}')" class="text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
           </td>
         </tr>
       `).join('');
-
       lucide.createIcons();
     }
 
@@ -847,7 +681,6 @@
       const title = document.getElementById('productModalTitle');
       const form = document.getElementById('productForm');
       const preview = document.getElementById('prodImagePreviewContainer');
-
       form.reset();
       preview.classList.add('hidden');
 
@@ -862,7 +695,6 @@
           document.getElementById('prodCategory').value = p.category;
           document.getElementById('prodImage').value = p.image;
           document.getElementById('prodDescription').value = p.description;
-
           if (p.image) {
             document.getElementById('prodImagePreview').src = p.image;
             preview.classList.remove('hidden');
@@ -872,7 +704,6 @@
         title.innerText = "Nuevo Producto";
         document.getElementById('prodId').value = "";
       }
-
       modal.classList.remove('hidden');
     }
 
@@ -885,9 +716,8 @@
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          const base64Image = e.target.result;
-          document.getElementById('prodImage').value = base64Image;
-          document.getElementById('prodImagePreview').src = base64Image;
+          document.getElementById('prodImage').value = e.target.result;
+          document.getElementById('prodImagePreview').src = e.target.result;
           document.getElementById('prodImagePreviewContainer').classList.remove('hidden');
         };
         reader.readAsDataURL(file);
@@ -905,22 +735,13 @@
       const description = document.getElementById('prodDescription').value;
 
       const productData = { id, name, price, stock, category, image, description };
-
-      // Guardar en Firestore Cloud
       if (window.db) {
-        try {
-          await window.setDoc(window.doc(window.db, "products", id), productData);
-        } catch (err) {
-          console.error("Error al guardar en Firebase:", err);
-        }
+        await window.setDoc(window.doc(window.db, "products", id), productData);
       }
 
       const index = products.findIndex(p => p.id === id);
-      if (index >= 0) {
-        products[index] = productData;
-      } else {
-        products.push(productData);
-      }
+      if (index >= 0) products[index] = productData;
+      else products.push(productData);
 
       closeProductModal();
       renderAdminProducts();
@@ -928,13 +749,9 @@
     }
 
     async function deleteProduct(productId) {
-      if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+      if (confirm("¿Eliminar producto?")) {
         if (window.db) {
-          try {
-            await window.deleteDoc(window.doc(window.db, "products", productId));
-          } catch (err) {
-            console.error("Error al eliminar en Firebase:", err);
-          }
+          await window.deleteDoc(window.doc(window.db, "products", productId));
         }
         products = products.filter(p => p.id !== productId);
         renderAdminProducts();
@@ -945,48 +762,24 @@
     async function saveShopSettings() {
       shopName = document.getElementById('settingShopName').value.trim() || 'Gymix Store';
       sellerPhone = document.getElementById('settingPhone').value.trim() || '584121234567';
-
       if (window.db) {
-        try {
-          await window.setDoc(window.doc(window.db, "config", "store_settings"), {
-            shopName, sellerPhone, adminPin, bannerTitle, bannerSubtitle, bannerImgUrl
-          }, { merge: true });
-        } catch (err) {
-          console.error(err);
-        }
+        await window.setDoc(window.doc(window.db, "config", "store_settings"), { shopName, sellerPhone, adminPin, bannerTitle, bannerSubtitle, bannerImgUrl }, { merge: true });
       }
-
       updateShopUI();
-      alert("Ajustes de tienda guardados con éxito en la nube.");
+      alert("Ajustes guardados.");
     }
 
     async function savePinSettings() {
       const pin = document.getElementById('settingPin').value.trim();
       const confirmPin = document.getElementById('settingPinConfirm').value.trim();
-
-      if (!pin) {
-        alert("Por favor ingresa un nuevo PIN.");
-        return;
-      }
-      if (pin !== confirmPin) {
-        alert("Las contraseñas no coinciden.");
-        return;
-      }
-
+      if (!pin || pin !== confirmPin) { alert("Contraseñas no coinciden."); return; }
       adminPin = pin;
       if (window.db) {
-        try {
-          await window.setDoc(window.doc(window.db, "config", "store_settings"), {
-            shopName, sellerPhone, adminPin, bannerTitle, bannerSubtitle, bannerImgUrl
-          }, { merge: true });
-        } catch (err) {
-          console.error(err);
-        }
+        await window.setDoc(window.doc(window.db, "config", "store_settings"), { shopName, sellerPhone, adminPin, bannerTitle, bannerSubtitle, bannerImgUrl }, { merge: true });
       }
-
       document.getElementById('settingPin').value = '';
       document.getElementById('settingPinConfirm').value = '';
-      alert("¡Clave de vendedor actualizada!");
+      alert("Clave actualizada.");
     }
 
     function handleBannerFileSelect(event) {
@@ -994,8 +787,7 @@
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          const base64Image = e.target.result;
-          document.getElementById('settingBannerImgUrl').value = base64Image;
+          document.getElementById('settingBannerImgUrl').value = e.target.result;
         };
         reader.readAsDataURL(file);
       }
@@ -1005,19 +797,11 @@
       bannerTitle = document.getElementById('settingBannerTitle').value.trim();
       bannerSubtitle = document.getElementById('settingBannerSubtitle').value.trim();
       bannerImgUrl = document.getElementById('settingBannerImgUrl').value.trim();
-
       if (window.db) {
-        try {
-          await window.setDoc(window.doc(window.db, "config", "store_settings"), {
-            shopName, sellerPhone, adminPin, bannerTitle, bannerSubtitle, bannerImgUrl
-          }, { merge: true });
-        } catch (err) {
-          console.error(err);
-        }
+        await window.setDoc(window.doc(window.db, "config", "store_settings"), { shopName, sellerPhone, adminPin, bannerTitle, bannerSubtitle, bannerImgUrl }, { merge: true });
       }
-
       updateShopUI();
-      alert("¡Slogan e imagen de portada actualizados!");
+      alert("Slogan actualizado.");
     }
   </script>
 </body>
