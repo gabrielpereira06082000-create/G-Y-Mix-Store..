@@ -3,79 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi Tienda Virtual - Catálogo y Ventas</title>
+  <title>Gymix Store</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBmVtaqiNhzj_JEQowxVlAQyhvsENDYoFk",
+      authDomain: "gymixstore-8b8ed.firebaseapp.com",
+      projectId: "gymixstore-8b8ed",
+      storageBucket: "gymixstore-8b8ed.firebasestorage.app",
+      messagingSenderId: "450280203017",
+      appId: "1:450280203017:web:e70c0cb8da6085ff1969d8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Exponer funciones y db globalmente para la app
+    window.db = db;
+    window.collection = collection;
+    window.getDocs = getDocs;
+    window.setDoc = setDoc;
+    window.doc = doc;
+    window.deleteDoc = deleteDoc;
+
+    // Disparar carga inicial de datos desde Firestore
+    if (window.initAppFromFirebase) {
+      window.initAppFromFirebase();
+    }
+  </script>
+
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col antialiased">
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-  <!-- ENCABEZADO PRINCIPAL -->
+  <!-- ENCABEZADO / NAVBAR -->
   <header class="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      
-      <!-- LOGO / NOMBRE DE TIENDA -->
       <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('client')">
-        <div class="bg-emerald-600 text-white p-2 rounded-xl shadow-md shadow-emerald-500/20">
+        <div class="bg-indigo-600 text-white p-2 rounded-xl">
           <i data-lucide="store" class="w-6 h-6"></i>
         </div>
         <div>
-          <h1 id="shopNameHeader" class="font-bold text-lg text-gray-900 leading-tight">Mi Tienda Virtual</h1>
-          <p id="shopSubHeader" class="text-xs text-emerald-600 font-medium">Catálogo Digital</p>
+          <h1 id="shopNameHeader" class="font-bold text-lg text-gray-900 leading-tight">Gymix Store</h1>
+          <p id="shopSubHeader" class="text-xs text-gray-500">Catálogo de Productos</p>
         </div>
       </div>
 
-      <!-- BOTONES DE ACCIÓN (PANEL VENDEDOR & CARRITO) -->
-      <div class="flex items-center space-x-3">
-        <button id="viewToggleBtn" onclick="toggleAdminView()" class="flex items-center space-x-2 text-xs sm:text-sm font-semibold border border-gray-300 text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-xl transition-all">
+      <div class="flex items-center space-x-2">
+        <!-- Botón Cambio de Vista -->
+        <button id="viewToggleBtn" onclick="toggleAdminView()" class="flex items-center space-x-2 text-sm font-medium text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
           <i data-lucide="user-cog" class="w-4 h-4"></i>
           <span id="viewToggleText" class="hidden sm:inline">Panel Vendedor</span>
         </button>
 
-        <button id="cartBtn" onclick="toggleCartModal(true)" class="relative bg-emerald-600 hover:bg-emerald-700 text-white p-2.5 rounded-xl transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center">
+        <!-- Botón Carrito (Vista Cliente) -->
+        <button id="cartBtn" onclick="toggleCartModal()" class="relative bg-indigo-600 hover:bg-indigo-700 text-white p-2.5 rounded-xl transition-all shadow-md hover:shadow-indigo-200">
           <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-          <span id="cartBadge" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[11px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white hidden">0</span>
+          <span id="cartBadge" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white hidden">0</span>
         </button>
       </div>
-
     </div>
   </header>
 
-  <!-- BANNER PRINCIPAL / HERO CON SLOGAN -->
-  <section id="heroBanner" class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-900 text-white py-8 px-4 transition-all">
+  <!-- BANNER PRINCIPAL / SLOGAN (VISTA CLIENTE) -->
+  <section id="heroBanner" class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-indigo-950 text-white py-10 px-4 transition-all">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-      <div class="space-y-2 text-center md:text-left flex-1">
-        <span class="bg-emerald-500/30 text-emerald-100 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-400/30 inline-block">¡Bienvenidos!</span>
+      <div class="space-y-2 text-center md:text-left">
+        <span class="bg-indigo-500/30 text-indigo-200 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-400/30">Bienvenidos</span>
         <h2 id="bannerTitleDisplay" class="text-2xl sm:text-3xl font-extrabold tracking-tight">¡Encuentra los mejores productos aquí!</h2>
-        <p id="bannerSubtitleDisplay" class="text-emerald-100 text-xs sm:text-sm max-w-xl leading-relaxed">Selecciona tus artículos favoritos, agrégalos al carrito y realiza tu pedido directo por WhatsApp.</p>
+        <p id="bannerSubtitleDisplay" class="text-indigo-200 text-sm max-w-xl">Selecciona tus artículos favoritos, agrégalos al carrito y haz tu pedido directamente por WhatsApp.</p>
       </div>
-      <div id="bannerImageContainer" class="w-full md:w-72 h-40 rounded-2xl overflow-hidden shadow-xl border border-emerald-600/40 bg-emerald-950 flex items-center justify-center relative flex-shrink-0">
+      <div id="bannerImageContainer" class="w-full md:w-64 h-36 rounded-2xl overflow-hidden shadow-lg border border-indigo-700/50 bg-indigo-950 flex items-center justify-center relative">
         <img id="bannerImgDisplay" src="https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=600&auto=format&fit=crop&q=80" alt="Slogan Banner" class="w-full h-full object-cover">
       </div>
     </div>
   </section>
 
   <!-- CONTENIDO PRINCIPAL -->
-  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
 
-    <!-- ================= VISTA CLIENTE: CATÁLOGO ================= -->
+    <!-- VISTA CLIENTE: CATÁLOGO -->
     <div id="clientView" class="space-y-6">
-      
-      <!-- Búsqueda y Filtros de Categorías -->
-      <div class="flex flex-col sm:flex-row gap-3 justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+      <!-- Filtros y Búsqueda -->
+      <div class="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
         <div class="relative w-full sm:w-80">
           <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-          <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Buscar producto..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all">
+          <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Buscar producto..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
         </div>
         <div class="flex items-center space-x-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 custom-scrollbar" id="categoryFilters">
           <!-- Categorías generadas por JS -->
@@ -84,37 +111,32 @@
 
       <!-- Grid de Productos -->
       <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <!-- Tarjetas de Productos dinámicas -->
+        <!-- Productos generados por JS -->
       </div>
     </div>
 
-    <!-- ================= VISTA VENDEDOR: PANEL ADMIN ================= -->
+    <!-- VISTA VENDEDOR: PANEL DE ADMINISTRACIÓN -->
     <div id="adminView" class="hidden space-y-6">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-900 text-white p-5 rounded-2xl shadow-md">
-        <div class="flex items-center space-x-3">
-          <div class="p-2.5 bg-gray-800 rounded-xl text-emerald-400">
-            <i data-lucide="shield-check" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <h2 class="text-lg font-bold">Panel de Administración del Vendedor</h2>
-            <p class="text-xs text-gray-400">Gestiona inventario, catálogo y datos de contacto</p>
-          </div>
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+        <div>
+          <h2 class="text-xl font-bold text-gray-900">Panel del Vendedor</h2>
+          <p class="text-xs text-gray-500">Gestiona tus productos, ajustes e imagen de tienda</p>
         </div>
-        <div class="flex space-x-2 w-full sm:w-auto">
-          <button onclick="switchAdminTab('products')" id="tabProductsBtn" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white transition-all">
+        <div class="flex flex-wrap gap-2">
+          <button onclick="switchAdminTab('products')" id="tabProductsBtn" class="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 text-white transition-all">
             Productos
           </button>
-          <button onclick="switchAdminTab('settings')" id="tabSettingsBtn" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+          <button onclick="switchAdminTab('settings')" id="tabSettingsBtn" class="px-4 py-2 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">
             Configuración
           </button>
         </div>
       </div>
 
-      <!-- ABA: GESTIÓN DE PRODUCTOS -->
-      <div id="adminTabProducts" class="space-y-4">
+      <!-- SUBTAB: PRODUCTOS -->
+      <div id="adminTabProducts" class="space-y-6">
         <div class="flex justify-between items-center">
-          <h3 class="font-bold text-gray-800 text-base">Inventario de Productos (<span id="adminProdCount">0</span>)</h3>
-          <button onclick="openProductModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-md shadow-emerald-600/20 transition-all">
+          <h3 class="font-bold text-gray-800">Inventario de Productos</h3>
+          <button onclick="openProductModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 shadow-sm transition-all">
             <i data-lucide="plus" class="w-4 h-4"></i>
             <span>Nuevo Producto</span>
           </button>
@@ -122,9 +144,9 @@
 
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
           <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
+            <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="bg-gray-50 border-b border-gray-200 font-semibold text-gray-600 uppercase tracking-wider">
+                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   <th class="py-3 px-4">Producto</th>
                   <th class="py-3 px-4">Categoría</th>
                   <th class="py-3 px-4">Precio</th>
@@ -132,7 +154,7 @@
                   <th class="py-3 px-4 text-right">Acciones</th>
                 </tr>
               </thead>
-              <tbody id="adminProductsTable" class="divide-y divide-gray-100 text-gray-700">
+              <tbody id="adminProductsTable" class="divide-y divide-gray-100 text-sm">
                 <!-- Filas de tabla generadas por JS -->
               </tbody>
             </table>
@@ -140,79 +162,79 @@
         </div>
       </div>
 
-      <!-- ABA: CONFIGURACIÓN GENERAL -->
+      <!-- SUBTAB: CONFIGURACIÓN -->
       <div id="adminTabSettings" class="hidden space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-          <!-- Configuración de WhatsApp y Nombre de Tienda -->
-          <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
-            <h3 class="font-bold text-gray-900 text-sm border-b pb-3 flex items-center space-x-2">
-              <i data-lucide="phone" class="w-4 h-4 text-emerald-600"></i>
-              <span>Datos de Contacto y Nombre</span>
+          <!-- Configuración General y WhatsApp -->
+          <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+            <h3 class="font-bold text-gray-900 border-b pb-2 flex items-center space-x-2">
+              <i data-lucide="phone" class="w-4 h-4 text-indigo-600"></i>
+              <span>Datos de la Tienda y WhatsApp</span>
             </h3>
             <div>
               <label class="block text-xs font-semibold text-gray-700 mb-1">Nombre de la Tienda</label>
-              <input type="text" id="settingShopName" class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+              <input type="text" id="settingShopName" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-1">WhatsApp para Recibir Pedidos</label>
-              <input type="text" id="settingPhone" placeholder="Ej: 584121234567" class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
-              <p class="text-[11px] text-gray-400 mt-1">Incluye el código de país sin el símbolo "+" (Ej: 58 para Venezuela, 57 para Colombia).</p>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Número de WhatsApp (con código de país)</label>
+              <input type="text" id="settingPhone" placeholder="Ej: 584121234567" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+              <p class="text-[11px] text-gray-400 mt-1">Ingresa el código de país sin el símbolo "+" (Ej: 58 para Venezuela).</p>
             </div>
-            <button onclick="saveShopSettings()" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs hover:bg-emerald-700 transition-all shadow-sm">
-              Guardar Cambios Básicos
+            <button onclick="saveShopSettings()" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-xl text-sm hover:bg-indigo-700 transition-all">
+              Guardar Datos Básicos
             </button>
           </div>
 
           <!-- Configuración de Seguridad / PIN -->
-          <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
-            <h3 class="font-bold text-gray-900 text-sm border-b pb-3 flex items-center space-x-2">
-              <i data-lucide="key" class="w-4 h-4 text-emerald-600"></i>
+          <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+            <h3 class="font-bold text-gray-900 border-b pb-2 flex items-center space-x-2">
+              <i data-lucide="lock" class="w-4 h-4 text-indigo-600"></i>
               <span>Seguridad (Clave del Vendedor)</span>
             </h3>
             <div>
               <label class="block text-xs font-semibold text-gray-700 mb-1">Nueva Clave / PIN de Acceso</label>
-              <input type="password" id="settingPin" placeholder="Ej: 1234" class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+              <input type="password" id="settingPin" placeholder="Ej: 1234" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
             </div>
             <div>
               <label class="block text-xs font-semibold text-gray-700 mb-1">Confirmar Nueva Clave</label>
-              <input type="password" id="settingPinConfirm" placeholder="Ej: 1234" class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+              <input type="password" id="settingPinConfirm" placeholder="Ej: 1234" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
             </div>
-            <button onclick="savePinSettings()" class="w-full bg-gray-900 text-white font-bold py-2.5 rounded-xl text-xs hover:bg-black transition-all shadow-sm">
+            <button onclick="savePinSettings()" class="w-full bg-gray-900 text-white font-semibold py-2 rounded-xl text-sm hover:bg-black transition-all">
               Actualizar Contraseña
             </button>
           </div>
 
-          <!-- Personalización del Banner / Slogan e Imagen de Galería -->
-          <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4 md:col-span-2">
-            <h3 class="font-bold text-gray-900 text-sm border-b pb-3 flex items-center space-x-2">
-              <i data-lucide="image" class="w-4 h-4 text-emerald-600"></i>
-              <span>Personalizar Slogan y Foto del Banner Principal</span>
+          <!-- Configuración de Banner y Slogan -->
+          <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4 md:col-span-2">
+            <h3 class="font-bold text-gray-900 border-b pb-2 flex items-center space-x-2">
+              <i data-lucide="image" class="w-4 h-4 text-indigo-600"></i>
+              <span>Personalizar Imagen de Portada y Slogan</span>
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Título del Banner</label>
-                <input type="text" id="settingBannerTitle" class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                <input type="text" id="settingBannerTitle" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">Subtítulo / Slogan Principal</label>
-                <input type="text" id="settingBannerSubtitle" class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Subtítulo / Slogan</label>
+                <input type="text" id="settingBannerSubtitle" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
               </div>
             </div>
 
             <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-1">Imagen de Portada (Carga URL o Galería)</label>
-              <div class="flex flex-col sm:flex-row gap-2 items-center">
-                <input type="text" id="settingBannerImgUrl" placeholder="URL de la imagen (https://...)" class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
-                <span class="text-xs text-gray-400 font-bold">O</span>
-                <label class="w-full sm:w-auto px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold cursor-pointer hover:bg-emerald-100 text-center whitespace-nowrap transition-all">
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Imagen de Portada / Slogan Principal</label>
+              <div class="flex flex-col sm:flex-row gap-3 items-center">
+                <input type="text" id="settingBannerImgUrl" placeholder="URL de la imagen (https://...)" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                <span class="text-xs text-gray-400 font-semibold">O</span>
+                <label class="w-full sm:w-auto px-4 py-2 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-xl text-xs font-bold cursor-pointer hover:bg-indigo-100 text-center whitespace-nowrap">
                   <span>Seleccionar de Galería</span>
                   <input type="file" id="settingBannerFileInput" accept="image/*" onchange="handleBannerFileSelect(event)" class="hidden">
                 </label>
               </div>
             </div>
 
-            <button onclick="saveBannerSettings()" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs hover:bg-emerald-700 transition-all shadow-sm">
+            <button onclick="saveBannerSettings()" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-xl text-sm hover:bg-indigo-700 transition-all">
               Guardar Imagen y Slogan
             </button>
           </div>
@@ -223,122 +245,118 @@
 
   </main>
 
-  <!-- MODAL DE CARRITO Y PROCESO DE CHECKOUT -->
+  <!-- MODAL CARRITO / CHECKOUT -->
   <div id="cartModal" class="fixed inset-0 bg-black/50 z-50 flex justify-end hidden transition-opacity">
     <div class="bg-white w-full max-w-md h-full flex flex-col shadow-2xl">
-      
       <!-- Header Modal -->
       <div class="p-4 border-b flex items-center justify-between bg-gray-50">
         <div class="flex items-center space-x-2">
-          <i data-lucide="shopping-bag" class="w-5 h-5 text-emerald-600"></i>
-          <h3 class="font-bold text-gray-900 text-sm">Tu Carrito de Compras</h3>
+          <i data-lucide="shopping-bag" class="w-5 h-5 text-indigo-600"></i>
+          <h3 class="font-bold text-gray-900">Carrito de Compras</h3>
         </div>
-        <button onclick="toggleCartModal(false)" class="text-gray-400 hover:text-gray-600 p-1">
+        <button onclick="toggleCartModal()" class="text-gray-400 hover:text-gray-600 p-1">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <!-- Paso 1: Lista de Items del Carrito -->
+      <!-- Items o Lista -->
       <div id="cartStepItems" class="flex-grow overflow-y-auto p-4 space-y-4 custom-scrollbar">
         <div id="cartList" class="space-y-3">
-          <!-- Items generados dinámicamente por JS -->
+          <!-- Productos en carrito por JS -->
         </div>
       </div>
 
-      <!-- Paso 2: Formulario de Datos y Pago -->
+      <!-- Formulario de Checkout paso 2 -->
       <div id="cartStepCheckout" class="flex-grow overflow-y-auto p-4 space-y-4 hidden custom-scrollbar">
-        <button onclick="goToCartStep('items')" class="text-xs text-emerald-600 font-bold flex items-center space-x-1 mb-2 hover:underline">
-          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
-          <span>Volver a la lista de productos</span>
+        <button onclick="goToCartStep('items')" class="text-xs text-indigo-600 font-semibold flex items-center space-x-1 mb-2">
+          <i data-lucide="arrow-left" class="w-3 h-3"></i>
+          <span>Volver al carrito</span>
         </button>
 
-        <h4 class="font-bold text-gray-900 text-xs uppercase tracking-wider border-b pb-2">Datos Obligatorios de Entrega</h4>
+        <h4 class="font-bold text-gray-800 border-b pb-2">Datos para la Entrega</h4>
         
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Nombre Completo *</label>
-          <input type="text" id="checkoutName" required placeholder="Ej: María Pérez" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+          <input type="text" id="checkoutName" required placeholder="Tu nombre" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Teléfono de Contacto *</label>
-          <input type="tel" id="checkoutPhone" required placeholder="Ej: 0412 1234567" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Teléfono *</label>
+          <input type="tel" id="checkoutPhone" required placeholder="Ej: 04121234567" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Dirección Completa de Entrega *</label>
-          <textarea id="checkoutAddress" required rows="2" placeholder="Calle, Edificio/Casa, Punto de referencia..." class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none resize-none"></textarea>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Dirección de Entrega *</label>
+          <textarea id="checkoutAddress" required rows="2" placeholder="Calle, número, punto de referencia..." class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
         </div>
 
-        <h4 class="font-bold text-gray-900 text-xs uppercase tracking-wider border-b pb-2 pt-2">Selecciona Forma de Pago</h4>
+        <h4 class="font-bold text-gray-800 border-b pb-2 pt-2">Método de Pago</h4>
         
         <div class="space-y-2">
-          <label class="flex items-center p-2.5 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-            <input type="radio" name="paymentMethod" value="Divisas" checked class="text-emerald-600 focus:ring-emerald-500" onchange="togglePaymentNotes()">
+          <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+            <input type="radio" name="paymentMethod" value="Divisa" checked class="text-indigo-600 focus:ring-indigo-500" onchange="togglePaymentNotes()">
             <div class="ml-3">
-              <span class="block text-xs font-bold text-gray-800">Divisas (Efectivo $)</span>
-              <span class="block text-[11px] text-gray-500">Entrega de efectivo en dólares al recibir</span>
+              <span class="block text-sm font-semibold text-gray-800">Divisas (Efectivo $)</span>
+              <span class="block text-xs text-gray-500">Pago en efectivo al momento de recibir</span>
             </div>
           </label>
 
-          <label class="flex items-center p-2.5 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-            <input type="radio" name="paymentMethod" value="Efectivo" class="text-emerald-600 focus:ring-emerald-500" onchange="togglePaymentNotes()">
+          <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+            <input type="radio" name="paymentMethod" value="Efectivo" class="text-indigo-600 focus:ring-indigo-500" onchange="togglePaymentNotes()">
             <div class="ml-3">
-              <span class="block text-xs font-bold text-gray-800">Efectivo Moneda Local</span>
-              <span class="block text-[11px] text-gray-500">Pago en efectivo al repartidor</span>
+              <span class="block text-sm font-semibold text-gray-800">Efectivo Moneda Local</span>
+              <span class="block text-xs text-gray-500">Pago en efectivo local al entregar</span>
             </div>
           </label>
 
-          <label class="flex items-center p-2.5 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-            <input type="radio" name="paymentMethod" value="Pago Móvil" class="text-emerald-600 focus:ring-emerald-500" onchange="togglePaymentNotes()">
+          <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+            <input type="radio" name="paymentMethod" value="Pago Móvil" class="text-indigo-600 focus:ring-indigo-500" onchange="togglePaymentNotes()">
             <div class="ml-3">
-              <span class="block text-xs font-bold text-gray-800">Pago Móvil / Código QR</span>
-              <span class="block text-[11px] text-gray-500">Te enviamos los datos / QR por WhatsApp</span>
+              <span class="block text-sm font-semibold text-gray-800">Pago Móvil / QR Code</span>
+              <span class="block text-xs text-gray-500">Te enviamos el QR / Datos por WhatsApp</span>
             </div>
           </label>
 
-          <label class="flex items-center p-2.5 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-            <input type="radio" name="paymentMethod" value="Binance" class="text-emerald-600 focus:ring-emerald-500" onchange="togglePaymentNotes()">
+          <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+            <input type="radio" name="paymentMethod" value="Binance" class="text-indigo-600 focus:ring-indigo-500" onchange="togglePaymentNotes()">
             <div class="ml-3">
-              <span class="block text-xs font-bold text-gray-800">Binance Pay (USDT)</span>
-              <span class="block text-[11px] text-gray-500">Transferencia USDT vía Binance Pay</span>
+              <span class="block text-sm font-semibold text-gray-800">Binance Pay (USDT)</span>
+              <span class="block text-xs text-gray-500">Transferencia USDT vía Binance</span>
             </div>
           </label>
         </div>
 
-        <div id="paymentNoteBox" class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1 hidden">
-          <p class="font-bold flex items-center gap-1 text-[11px]">
-            <i data-lucide="info" class="w-3.5 h-3.5"></i> <span id="paymentNoteTitle">Información de pago:</span>
-          </p>
-          <p id="paymentNoteText" class="text-[11px] leading-relaxed">Te enviaremos los datos requeridos por WhatsApp al procesar tu pedido.</p>
+        <div id="paymentNoteBox" class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1 hidden">
+          <p class="font-semibold" id="paymentNoteTitle">Nota sobre la forma de pago:</p>
+          <p id="paymentNoteText">Al confirmar el pedido, te enviaremos por WhatsApp los datos o el código QR para realizar la transferencia.</p>
         </div>
       </div>
 
-      <!-- Footer Modal con Total y Botones -->
+      <!-- Footer Modal con Total -->
       <div class="p-4 border-t bg-gray-50 space-y-3">
-        <div class="flex justify-between items-center text-base font-extrabold text-gray-900">
+        <div class="flex justify-between items-center text-lg font-bold text-gray-900">
           <span>Total:</span>
-          <span id="cartTotalDisplay" class="text-emerald-600">$0.00</span>
+          <span id="cartTotalDisplay">$0.00</span>
         </div>
 
-        <button id="btnCartNext" onclick="goToCartStep('checkout')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold flex items-center justify-center space-x-2 transition-all shadow-md shadow-emerald-600/20 text-xs">
-          <span>Continuar con los Datos de Entrega</span>
+        <button id="btnCartNext" onclick="goToCartStep('checkout')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center space-x-2 transition-all">
+          <span>Continuar al Pago</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
 
-        <button id="btnSendOrder" onclick="sendOrderToWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold flex items-center justify-center space-x-2 transition-all shadow-md shadow-emerald-600/20 text-xs hidden">
+        <button id="btnSendOrder" onclick="sendOrderToWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center space-x-2 transition-all hidden">
           <i data-lucide="send" class="w-4 h-4"></i>
           <span>Enviar Pedido por WhatsApp</span>
         </button>
       </div>
-
     </div>
   </div>
 
-  <!-- MODAL REGISTRO / EDICIÓN DE PRODUCTOS (VENDEDOR) -->
-  <div id="productModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl">
+  <!-- MODAL EDITAR / CREAR PRODUCTO (PANEL VENDEDOR) -->
+  <div id="productModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex justify-between items-center border-b pb-3">
-        <h3 id="productModalTitle" class="font-bold text-base text-gray-900">Registrar Nuevo Producto</h3>
+        <h3 id="productModalTitle" class="font-bold text-lg text-gray-900">Nuevo Producto</h3>
         <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-600">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
@@ -349,40 +367,38 @@
         
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Nombre del Producto *</label>
-          <input type="text" id="prodName" required placeholder="Ej: Camiseta de Algodón" class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+          <input type="text" id="prodName" required class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-gray-700 mb-1">Precio ($) *</label>
-            <input type="number" step="0.01" id="prodPrice" required placeholder="0.00" class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+            <input type="number" step="0.01" id="prodPrice" required class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-700 mb-1">Stock Disponible *</label>
-            <input type="number" id="prodStock" min="0" required placeholder="10" class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+            <input type="number" id="prodStock" min="0" required class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Categoría *</label>
-          <input type="text" id="prodCategory" required placeholder="Ej: Ropa, Tecnología, Accesorios" class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+          <input type="text" id="prodCategory" required placeholder="Ej: Bebidas, Calzado..." class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Foto del Producto</label>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Imagen del Producto</label>
           <div class="space-y-2">
-            <input type="text" id="prodImage" placeholder="URL de la foto (https://...)" class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
-            
-            <div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-xl border border-dashed border-gray-300">
-              <span class="text-xs text-gray-500">O carga desde tu dispositivo:</span>
-              <label class="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold cursor-pointer hover:bg-emerald-100 transition-colors">
-                <span>Buscar en Galería</span>
+            <input type="text" id="prodImage" placeholder="URL de la imagen (https://...)" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+            <div class="flex items-center justify-between bg-gray-50 p-2 rounded-xl border border-dashed border-gray-300">
+              <span class="text-xs text-gray-500">O selecciona una foto:</span>
+              <label class="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-semibold cursor-pointer hover:bg-indigo-100 transition-colors">
+                <span>Seleccionar de Galería</span>
                 <input type="file" id="prodFileInput" accept="image/*" onchange="handleProductFileSelect(event)" class="hidden">
               </label>
             </div>
-
-            <!-- Previsualización -->
-            <div id="prodImagePreviewContainer" class="hidden w-20 h-20 rounded-xl overflow-hidden border border-gray-200">
+            <!-- Vista Previa Imagen -->
+            <div id="prodImagePreviewContainer" class="hidden w-20 h-20 rounded-xl overflow-hidden border">
               <img id="prodImagePreview" src="" class="w-full h-full object-cover">
             </div>
           </div>
@@ -390,45 +406,85 @@
 
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Descripción</label>
-          <textarea id="prodDescription" rows="2" placeholder="Detalles, colores, materiales..." class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none resize-none"></textarea>
+          <textarea id="prodDescription" rows="2" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
         </div>
 
         <div class="flex space-x-2 pt-2">
-          <button type="button" onclick="closeProductModal()" class="w-1/2 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-xs font-semibold hover:bg-gray-200 transition-all">Cancelar</button>
-          <button type="submit" class="w-1/2 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-all shadow-md shadow-emerald-600/20">Guardar Producto</button>
+          <button type="button" onclick="closeProductModal()" class="w-1/2 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition-all">Cancelar</button>
+          <button type="submit" class="w-1/2 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-all">Guardar</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- SCRIPT CON LÓGICA COMPLETA DE LA APLICACIÓN -->
+  <!-- SCRIPT LÓGICA DE APLICACIÓN CON FIREBASE -->
   <script>
-    // DATOS INICIALES POR DEFECTO
-    const DEFAULT_PRODUCTS = [
-      { id: '1', name: 'Zapatos Deportivos Ergonomicos', price: 45.00, stock: 8, category: 'Calzado', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=80', description: 'Zapatos de correr cómodos y ligeros, suela antideslizante.' },
-      { id: '2', name: 'Franela de Algodón Premium', price: 15.50, stock: 15, category: 'Ropa', image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80', description: '100% algodón, fresca y disponible en varias tallas.' },
-      { id: '3', name: 'Reloj Inteligente Deportivo', price: 89.99, stock: 3, category: 'Tecnología', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=80', description: 'Monitor de ritmo cardíaco, pasos y notificaciones al celular.' },
-      { id: '4', name: 'Audífonos Bluetooth Inalámbricos', price: 29.90, stock: 0, category: 'Tecnología', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=80', description: 'Sonido de alta definición y batería de 12 horas.' }
-    ];
-
-    let products = JSON.parse(localStorage.getItem('app_products_es_v2')) || DEFAULT_PRODUCTS;
+    let products = [];
     let cart = [];
     let currentCategory = 'Todos';
     let currentView = 'client';
-    let adminPin = localStorage.getItem('app_admin_pin_v2') || '1234';
-    let shopName = localStorage.getItem('app_shop_name_v2') || 'Mi Tienda Virtual';
-    let sellerPhone = localStorage.getItem('app_seller_phone_v2') || '584121234567';
-    let bannerTitle = localStorage.getItem('app_banner_title_v2') || '¡Encuentra los mejores productos aquí!';
-    let bannerSubtitle = localStorage.getItem('app_banner_subtitle_v2') || 'Selecciona tus artículos favoritos, agrégalos al carrito y realiza tu pedido directo por WhatsApp.';
-    let bannerImgUrl = localStorage.getItem('app_banner_img_v2') || 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=600&auto=format&fit=crop&q=80';
+    let adminPin = '1234';
+    let shopName = 'Gymix Store';
+    let sellerPhone = '584121234567';
+    let bannerTitle = '¡Encuentra los mejores productos aquí!';
+    let bannerSubtitle = 'Selecciona tus artículos favoritos, agrégalos al carrito y haz tu pedido directamente por WhatsApp.';
+    let bannerImgUrl = 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=600&auto=format&fit=crop&q=80';
 
-    // INICIALIZAR EN EL NAVEGADOR
-    document.addEventListener('DOMContentLoaded', () => {
+    const DEFAULT_PRODUCTS = [
+      { id: '1', name: 'Zapatos Deportivos', price: 45.00, stock: 8, category: 'Calzado', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=80', description: 'Zapatos de correr cómodos y ligeros.' },
+      { id: '2', name: 'Camiseta de Algodón', price: 15.50, stock: 15, category: 'Ropa', image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80', description: '100% algodón, disponible en varios talles.' }
+    ];
+
+    // Función que se ejecuta al cargar Firebase
+    window.initAppFromFirebase = async function() {
+      try {
+        await loadDataFromCloud();
+      } catch (e) {
+        console.error("Error al cargar de Firebase:", e);
+        products = DEFAULT_PRODUCTS;
+      }
       updateShopUI();
       renderProducts();
       renderCart();
       lucide.createIcons();
-    });
+    };
+
+    async function loadDataFromCloud() {
+      if (!window.db) return;
+      
+      // Cargar productos
+      const querySnapshot = await window.getDocs(window.collection(window.db, "products"));
+      if (querySnapshot.empty) {
+        // Si está vacío, guardamos los productos por defecto en Firebase
+        products = DEFAULT_PRODUCTS;
+        for (let p of products) {
+          await window.setDoc(window.doc(window.db, "products", p.id), p);
+        }
+      } else {
+        products = [];
+        querySnapshot.forEach((doc) => {
+          products.push(doc.data());
+        });
+      }
+
+      // Cargar configuración
+      const configSnap = await window.getDocs(window.collection(window.db, "config"));
+      configSnap.forEach((doc) => {
+        const data = doc.data();
+        if (doc.id === "store_settings") {
+          if (data.shopName) shopName = data.shopName;
+          if (data.sellerPhone) sellerPhone = data.sellerPhone;
+          if (data.adminPin) adminPin = data.adminPin;
+          if (data.bannerTitle) bannerTitle = data.bannerTitle;
+          if (data.bannerSubtitle) bannerSubtitle = data.bannerSubtitle;
+          if (data.bannerImgUrl) bannerImgUrl = data.bannerImgUrl;
+        }
+      });
+
+      updateShopUI();
+      renderProducts();
+      if (currentView === 'admin') renderAdminProducts();
+    }
 
     function updateShopUI() {
       document.getElementById('shopNameHeader').innerText = shopName;
@@ -436,7 +492,6 @@
       document.getElementById('bannerSubtitleDisplay').innerText = bannerSubtitle;
       document.getElementById('bannerImgDisplay').src = bannerImgUrl;
 
-      // Actualizar inputs de configuración
       document.getElementById('settingShopName').value = shopName;
       document.getElementById('settingPhone').value = sellerPhone;
       document.getElementById('settingBannerTitle').value = bannerTitle;
@@ -444,14 +499,13 @@
       document.getElementById('settingBannerImgUrl').value = bannerImgUrl;
     }
 
-    // NAVEGACIÓN Y CAMBIO DE MODO
     function toggleAdminView() {
       if (currentView === 'client') {
-        const inputPin = prompt("Ingresa la clave del Vendedor (Por defecto: 1234):");
+        const inputPin = prompt("Ingrese la clave del Vendedor:");
         if (inputPin === adminPin) {
           switchView('admin');
         } else if (inputPin !== null) {
-          alert("¡Clave incorrecta!");
+          alert("Clave incorrecta.");
         }
       } else {
         switchView('client');
@@ -469,7 +523,7 @@
         clientView.classList.add('hidden');
         heroBanner.classList.add('hidden');
         adminView.classList.remove('hidden');
-        toggleText.innerText = "Ver Tienda";
+        toggleText.innerText = "Vista Cliente";
         renderAdminProducts();
       } else {
         adminView.classList.add('hidden');
@@ -489,17 +543,16 @@
       if (tab === 'products') {
         tabProducts.classList.remove('hidden');
         tabSettings.classList.add('hidden');
-        btnProducts.className = "flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white transition-all";
-        btnSettings.className = "flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all";
+        btnProducts.className = "px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 text-white transition-all";
+        btnSettings.className = "px-4 py-2 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all";
       } else {
         tabProducts.classList.add('hidden');
         tabSettings.classList.remove('hidden');
-        btnSettings.className = "flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white transition-all";
-        btnProducts.className = "flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all";
+        btnSettings.className = "px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 text-white transition-all";
+        btnProducts.className = "px-4 py-2 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all";
       }
     }
 
-    // MODO CLIENTE: RENDERIZADO Y FILTROS
     function renderProducts() {
       const grid = document.getElementById('productsGrid');
       const search = document.getElementById('searchInput').value.toLowerCase();
@@ -509,15 +562,15 @@
 
       const filtered = products.filter(p => {
         const matchesCategory = currentCategory === 'Todos' || p.category === currentCategory;
-        const matchesSearch = p.name.toLowerCase().includes(search) || (p.description && p.description.toLowerCase().includes(search));
+        const matchesSearch = p.name.toLowerCase().includes(search) || p.description.toLowerCase().includes(search);
         return matchesCategory && matchesSearch;
       });
 
       if (filtered.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-full py-12 text-center text-gray-400 space-y-2">
-            <i data-lucide="package-search" class="w-12 h-12 mx-auto text-gray-300"></i>
-            <p class="font-medium text-sm">No se encontraron productos disponibles.</p>
+          <div class="col-span-full py-12 text-center text-gray-400">
+            <i data-lucide="package-search" class="w-12 h-12 mx-auto mb-2 opacity-50"></i>
+            <p>No se encontraron productos disponibles.</p>
           </div>
         `;
         lucide.createIcons();
@@ -527,11 +580,11 @@
       grid.innerHTML = filtered.map(p => {
         const isOutOfStock = p.stock <= 0;
         return `
-          <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+          <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
             <div>
               <div class="relative h-48 bg-gray-100 overflow-hidden">
-                <img src="${p.image || 'https://placehold.co/400x400/e2e8f0/64748b?text=Sin+Foto'}" onerror="this.src='https://placehold.co/400x400/e2e8f0/64748b?text=Sin+Foto'" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                <span class="absolute top-2 left-2 bg-white/90 backdrop-blur-md text-gray-700 text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm border border-gray-200">
+                <img src="${p.image || 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=500&auto=format&fit=crop&q=80'}" alt="${p.name}" class="w-full h-full object-cover">
+                <span class="absolute top-2 left-2 bg-white/90 backdrop-blur-md text-gray-700 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
                   ${p.category}
                 </span>
                 ${isOutOfStock ? `
@@ -541,21 +594,21 @@
                 ` : ''}
               </div>
               <div class="p-4 space-y-2">
-                <h3 class="font-bold text-gray-900 text-sm line-clamp-1">${p.name}</h3>
-                <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">${p.description || 'Sin descripción disponible.'}</p>
-                <div class="text-[11px] font-semibold ${isOutOfStock ? 'text-red-500' : 'text-emerald-600'}">
-                  ${isOutOfStock ? 'Sin existencias' : `Stock: ${p.stock} unidades`}
+                <h3 class="font-bold text-gray-900 text-base leading-snug">${p.name}</h3>
+                <p class="text-xs text-gray-500 line-clamp-2">${p.description}</p>
+                <div class="text-xs font-semibold ${isOutOfStock ? 'text-red-500' : 'text-emerald-600'}">
+                  ${isOutOfStock ? 'Stock: 0' : Stock disponible: ${p.stock}}
                 </div>
               </div>
             </div>
-            <div class="p-4 pt-0 flex items-center justify-between gap-2 border-t border-gray-50 mt-2">
-              <span class="text-base font-extrabold text-emerald-700">$${p.price.toFixed(2)}</span>
+            <div class="p-4 pt-0 flex items-center justify-between gap-2">
+              <span class="text-lg font-extrabold text-gray-900">$${parseFloat(p.price).toFixed(2)}</span>
               <button 
                 onclick="addToCart('${p.id}')" 
                 ${isOutOfStock ? 'disabled' : ''} 
-                class="px-3 py-2 ${isOutOfStock ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white'} rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-all">
-                <i data-lucide="${isOutOfStock ? 'ban' : 'shopping-cart'}" class="w-3.5 h-3.5"></i>
-                <span>${isOutOfStock ? 'Agotado' : 'Agregar'}</span>
+                class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all shadow-sm">
+                <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                <span>Agregar</span>
               </button>
             </div>
           </div>
@@ -570,7 +623,7 @@
       container.innerHTML = categories.map(cat => `
         <button 
           onclick="setCategory('${cat}')" 
-          class="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${currentCategory === cat ? 'bg-emerald-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+          class="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${currentCategory === cat ? 'bg-indigo-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
           ${cat}
         </button>
       `).join('');
@@ -581,7 +634,6 @@
       renderProducts();
     }
 
-    // CARRITO Y PROCESO DE PAGO
     function addToCart(productId) {
       const product = products.find(p => p.id === productId);
       if (!product || product.stock <= 0) return;
@@ -591,7 +643,7 @@
         if (cartItem.qty < product.stock) {
           cartItem.qty++;
         } else {
-          alert(`Alcanzaste el límite de stock disponible (${product.stock} unidades).`);
+          alert(Límite alcanzado. Solo hay ${product.stock} unidades disponibles.);
           return;
         }
       } else {
@@ -609,7 +661,7 @@
       if (cartItem && product) {
         const newQty = cartItem.qty + change;
         if (newQty > product.stock) {
-          alert(`Límite máximo disponible: ${product.stock} unidades.`);
+          alert(Límite de stock disponible (${product.stock}).);
           return;
         }
         if (newQty <= 0) {
@@ -636,30 +688,33 @@
         badge.classList.add('hidden');
       }
 
-      totalDisplay.innerText = `$${totalPrice.toFixed(2)}`;
+      totalDisplay.innerText = $${totalPrice.toFixed(2)};
 
       if (cart.length === 0) {
         cartList.innerHTML = `
-          <div class="py-12 text-center text-gray-400 space-y-2">
-            <i data-lucide="shopping-bag" class="w-10 h-10 mx-auto text-gray-300"></i>
-            <p class="text-xs font-medium">Tu carrito está vacío.</p>
+          <div class="py-12 text-center text-gray-400">
+            <i data-lucide="shopping-bag" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
+            <p class="text-sm">Tu carrito está vacío</p>
           </div>
         `;
       } else {
         cartList.innerHTML = cart.map(item => `
-          <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-200">
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
             <div class="flex items-center space-x-3">
-              <img src="${item.image || 'https://placehold.co/100x100'}" class="w-12 h-12 object-cover rounded-lg">
+              <img src="${item.image || 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=500&auto=format&fit=crop&q=80'}" class="w-12 h-12 object-cover rounded-lg">
               <div>
-                <h4 class="font-bold text-gray-800 text-xs truncate max-w-[140px]">${item.name}</h4>
-                <p class="text-xs text-emerald-600 font-bold">$${(item.price * item.qty).toFixed(2)}</p>
-                <span class="text-[10px] text-gray-400">Stock: ${item.stock}</span>
+                <h4 class="font-bold text-gray-800 text-xs">${item.name}</h4>
+                <p class="text-xs text-gray-500">$${parseFloat(item.price).toFixed(2)} c/u</p>
               </div>
             </div>
-            <div class="flex items-center space-x-1.5 bg-white border border-gray-300 rounded-lg p-1">
-              <button onclick="updateCartQty('${item.id}', -1)" class="w-6 h-6 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-xs font-bold">-</button>
+            <div class="flex items-center space-x-2">
+              <button onclick="updateCartQty('${item.id}', -1)" class="p-1 bg-white border rounded-lg hover:bg-gray-100 text-gray-600">
+                <i data-lucide="minus" class="w-3 h-3"></i>
+              </button>
               <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
-              <button onclick="updateCartQty('${item.id}', 1)" class="w-6 h-6 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-xs font-bold">+</button>
+              <button onclick="updateCartQty('${item.id}', 1)" class="p-1 bg-white border rounded-lg hover:bg-gray-100 text-gray-600">
+                <i data-lucide="plus" class="w-3 h-3"></i>
+              </button>
             </div>
           </div>
         `).join('');
@@ -687,7 +742,7 @@
 
       if (step === 'checkout') {
         if (cart.length === 0) {
-          alert("Agrega al menos un producto al carrito para continuar.");
+          alert("Agrega al menos un producto al carrito.");
           return;
         }
         stepItems.classList.add('hidden');
@@ -706,17 +761,14 @@
     function togglePaymentNotes() {
       const selected = document.querySelector('input[name="paymentMethod"]:checked').value;
       const noteBox = document.getElementById('paymentNoteBox');
-      const noteTitle = document.getElementById('paymentNoteTitle');
       const noteText = document.getElementById('paymentNoteText');
 
       if (selected === 'Pago Móvil' || selected === 'Binance') {
         noteBox.classList.remove('hidden');
         if (selected === 'Pago Móvil') {
-          noteTitle.innerText = "Pago Móvil / Código QR:";
-          noteText.innerText = "Al confirmar tu pedido, te enviaremos la imagen del código QR y los datos bancarios por WhatsApp.";
+          noteText.innerText = "Al confirmar tu pedido te enviaremos por WhatsApp la imagen del código QR y la información para realizar el Pago Móvil.";
         } else {
-          noteTitle.innerText = "Binance Pay (USDT):";
-          noteText.innerText = "Te enviaremos nuestro Binance Pay ID / correo por WhatsApp para realizar la transferencia USDT.";
+          noteText.innerText = "Te enviaremos los datos de Binance Pay (ID/Email) por WhatsApp para concretar tu pago en USDT.";
         }
       } else {
         noteBox.classList.add('hidden');
@@ -730,31 +782,31 @@
       const payment = document.querySelector('input[name="paymentMethod"]:checked').value;
 
       if (!name || !phone || !address) {
-        alert("Por favor, completa los campos requeridos (Nombre, Teléfono y Dirección).");
+        alert("Por favor completa tu nombre, teléfono y dirección de entrega.");
         return;
       }
 
-      let message = `🛒 *NUEVO PEDIDO - ${shopName.toUpperCase()}*\n\n`;
-      message += `👤 *Cliente:* ${name}\n`;
-      message += `📞 *Teléfono:* ${phone}\n`;
-      message += `📍 *Dirección de Entrega:* ${address}\n`;
-      message += `💳 *Método de Pago:* ${payment}\n\n`;
-      message += `📦 *PRODUCTOS:*\n`;
+      let message = 🛒 *NUEVO PEDIDO - ${shopName.toUpperCase()}*\n\n;
+      message += 👤 *Cliente:* ${name}\n;
+      message += 📞 *Teléfono:* ${phone}\n;
+      message += 📍 *Dirección:* ${address}\n;
+      message += 💳 *Método de Pago:* ${payment}\n\n;
+      message += 📦 *PRODUCTOS:*\n;
 
       let total = 0;
       cart.forEach(item => {
         const subtotal = item.price * item.qty;
         total += subtotal;
-        message += `• ${item.qty}x ${item.name} - $${subtotal.toFixed(2)}\n`;
+        message += • ${item.qty}x ${item.name} - $${subtotal.toFixed(2)}\n;
       });
 
-      message += `\n💰 *TOTAL A PAGAR:* $${total.toFixed(2)}\n\n`;
+      message += \n💰 *TOTAL A PAGAR:* $${total.toFixed(2)}\n\n;
       if (payment === 'Pago Móvil' || payment === 'Binance') {
-        message += `📌 *Nota:* En espera de datos / QR code para realizar el pago.`;
+        message += 📌 *Nota:* Quedo a la espera de los datos / QR code para realizar el pago.;
       }
 
       const encodedMsg = encodeURIComponent(message);
-      const whatsappUrl = `https://wa.me/${sellerPhone}?text=${encodedMsg}`;
+      const whatsappUrl = https://wa.me/${sellerPhone}?text=${encodedMsg};
 
       window.open(whatsappUrl, '_blank');
       cart = [];
@@ -762,29 +814,22 @@
       toggleCartModal(false);
     }
 
-    // PANEL VENDEDOR Y TABLA ADMIN
     function renderAdminProducts() {
       const tbody = document.getElementById('adminProductsTable');
-      const countEl = document.getElementById('adminProdCount');
-      
-      countEl.innerText = products.length;
-
-      if (products.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-gray-400">No hay productos registrados.</td></tr>`;
-        return;
-      }
-
       tbody.innerHTML = products.map(p => `
-        <tr class="hover:bg-gray-50 transition-colors border-b border-gray-100">
+        <tr class="hover:bg-gray-50 transition-colors">
           <td class="py-3 px-4 flex items-center space-x-3">
-            <img src="${p.image || 'https://placehold.co/100x100'}" class="w-8 h-8 object-cover rounded-md flex-shrink-0">
-            <span class="font-bold text-gray-900 truncate max-w-[120px] sm:max-w-[200px]">${p.name}</span>
+            <img src="${p.image || 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=500&auto=format&fit=crop&q=80'}" class="w-10 h-10 object-cover rounded-lg">
+            <div>
+              <p class="font-bold text-gray-800">${p.name}</p>
+              <p class="text-xs text-gray-400 line-clamp-1">${p.description}</p>
+            </div>
           </td>
-          <td class="py-3 px-4 font-medium">${p.category}</td>
-          <td class="py-3 px-4 font-bold text-gray-900">$${p.price.toFixed(2)}</td>
-          <td class="py-3 px-4 font-bold ${p.stock <= 0 ? 'text-red-500' : 'text-gray-700'}">${p.stock} und</td>
-          <td class="py-3 px-4 text-right space-x-1">
-            <button onclick="openProductModal('${p.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg">
+          <td class="py-3 px-4 font-semibold text-gray-600">${p.category}</td>
+          <td class="py-3 px-4 font-bold text-gray-900">$${parseFloat(p.price).toFixed(2)}</td>
+          <td class="py-3 px-4 font-semibold ${p.stock <= 0 ? 'text-red-500' : 'text-gray-700'}">${p.stock}</td>
+          <td class="py-3 px-4 text-right space-x-2">
+            <button onclick="openProductModal('${p.id}')" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg">
               <i data-lucide="pencil" class="w-4 h-4"></i>
             </button>
             <button onclick="deleteProduct('${p.id}')" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg">
@@ -801,10 +846,10 @@
       const modal = document.getElementById('productModal');
       const title = document.getElementById('productModalTitle');
       const form = document.getElementById('productForm');
-      const previewContainer = document.getElementById('prodImagePreviewContainer');
+      const preview = document.getElementById('prodImagePreviewContainer');
 
       form.reset();
-      previewContainer.classList.add('hidden');
+      preview.classList.add('hidden');
 
       if (productId) {
         title.innerText = "Editar Producto";
@@ -815,16 +860,16 @@
           document.getElementById('prodPrice').value = p.price;
           document.getElementById('prodStock').value = p.stock;
           document.getElementById('prodCategory').value = p.category;
-          document.getElementById('prodImage').value = p.image || '';
-          document.getElementById('prodDescription').value = p.description || '';
+          document.getElementById('prodImage').value = p.image;
+          document.getElementById('prodDescription').value = p.description;
 
           if (p.image) {
             document.getElementById('prodImagePreview').src = p.image;
-            previewContainer.classList.remove('hidden');
+            preview.classList.remove('hidden');
           }
         }
       } else {
-        title.innerText = "Registrar Nuevo Producto";
+        title.innerText = "Nuevo Producto";
         document.getElementById('prodId').value = "";
       }
 
@@ -835,81 +880,92 @@
       document.getElementById('productModal').classList.add('hidden');
     }
 
-    // MANEJO DE ARCHIVOS DE IMAGEN (GALERÍA LOCAL -> DATA URL)
     function handleProductFileSelect(event) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          const dataUrl = e.target.result;
-          document.getElementById('prodImage').value = dataUrl;
-          document.getElementById('prodImagePreview').src = dataUrl;
+          const base64Image = e.target.result;
+          document.getElementById('prodImage').value = base64Image;
+          document.getElementById('prodImagePreview').src = base64Image;
           document.getElementById('prodImagePreviewContainer').classList.remove('hidden');
         };
         reader.readAsDataURL(file);
       }
     }
 
-    function handleProductSubmit(e) {
+    async function handleProductSubmit(e) {
       e.preventDefault();
-      const id = document.getElementById('prodId').value;
-      const name = document.getElementById('prodName').value.trim();
+      const id = document.getElementById('prodId').value || Date.now().toString();
+      const name = document.getElementById('prodName').value;
       const price = parseFloat(document.getElementById('prodPrice').value);
-      const stock = parseInt(document.getElementById('prodStock').value) || 0;
-      const category = document.getElementById('prodCategory').value.trim();
-      const image = document.getElementById('prodImage').value.trim();
-      const description = document.getElementById('prodDescription').value.trim();
+      const stock = parseInt(document.getElementById('prodStock').value);
+      const category = document.getElementById('prodCategory').value;
+      const image = document.getElementById('prodImage').value;
+      const description = document.getElementById('prodDescription').value;
 
-      if (id) {
-        products = products.map(p => p.id === id ? { id, name, price, stock, category, image, description } : p);
-      } else {
-        const newProduct = {
-          id: Date.now().toString(),
-          name,
-          price,
-          stock,
-          category,
-          image,
-          description
-        };
-        products.push(newProduct);
+      const productData = { id, name, price, stock, category, image, description };
+
+      // Guardar en Firestore Cloud
+      if (window.db) {
+        try {
+          await window.setDoc(window.doc(window.db, "products", id), productData);
+        } catch (err) {
+          console.error("Error al guardar en Firebase:", err);
+        }
       }
 
-      localStorage.setItem('app_products_es_v2', JSON.stringify(products));
+      const index = products.findIndex(p => p.id === id);
+      if (index >= 0) {
+        products[index] = productData;
+      } else {
+        products.push(productData);
+      }
+
       closeProductModal();
       renderAdminProducts();
       renderProducts();
     }
 
-    function deleteProduct(productId) {
+    async function deleteProduct(productId) {
       if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+        if (window.db) {
+          try {
+            await window.deleteDoc(window.doc(window.db, "products", productId));
+          } catch (err) {
+            console.error("Error al eliminar en Firebase:", err);
+          }
+        }
         products = products.filter(p => p.id !== productId);
-        cart = cart.filter(c => c.id !== productId);
-        localStorage.setItem('app_products_es_v2', JSON.stringify(products));
         renderAdminProducts();
         renderProducts();
-        renderCart();
       }
     }
 
-    // AJUSTES DEL VENDEDOR Y CABLEADO DE DATOS
-    function saveShopSettings() {
-      shopName = document.getElementById('settingShopName').value.trim() || 'Mi Tienda Virtual';
-      sellerPhone = document.getElementById('settingPhone').value.trim().replace(/\D/g, '') || '584121234567';
+    async function saveShopSettings() {
+      shopName = document.getElementById('settingShopName').value.trim() || 'Gymix Store';
+      sellerPhone = document.getElementById('settingPhone').value.trim() || '584121234567';
 
-      localStorage.setItem('app_shop_name_v2', shopName);
-      localStorage.setItem('app_seller_phone_v2', sellerPhone);
+      if (window.db) {
+        try {
+          await window.setDoc(window.doc(window.db, "config", "store_settings"), {
+            shopName, sellerPhone, adminPin, bannerTitle, bannerSubtitle, bannerImgUrl
+          }, { merge: true });
+        } catch (err) {
+          console.error(err);
+        }
+      }
 
       updateShopUI();
-      alert("¡Ajustes guardados con éxito!");
+      alert("Ajustes de tienda guardados con éxito en la nube.");
     }
 
-    function savePinSettings() {
+    async function savePinSettings() {
       const pin = document.getElementById('settingPin').value.trim();
       const confirmPin = document.getElementById('settingPinConfirm').value.trim();
 
       if (!pin) {
-        alert("Ingresa una nueva contraseña.");
+        alert("Por favor ingresa un nuevo PIN.");
         return;
       }
       if (pin !== confirmPin) {
@@ -918,10 +974,19 @@
       }
 
       adminPin = pin;
-      localStorage.setItem('app_admin_pin_v2', adminPin);
+      if (window.db) {
+        try {
+          await window.setDoc(window.doc(window.db, "config", "store_settings"), {
+            shopName, sellerPhone, adminPin, bannerTitle, bannerSubtitle, bannerImgUrl
+          }, { merge: true });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
       document.getElementById('settingPin').value = '';
       document.getElementById('settingPinConfirm').value = '';
-      alert("¡Clave de vendedor actualizada correctamente!");
+      alert("¡Clave de vendedor actualizada!");
     }
 
     function handleBannerFileSelect(event) {
@@ -929,21 +994,27 @@
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          const dataUrl = e.target.result;
-          document.getElementById('settingBannerImgUrl').value = dataUrl;
+          const base64Image = e.target.result;
+          document.getElementById('settingBannerImgUrl').value = base64Image;
         };
         reader.readAsDataURL(file);
       }
     }
 
-    function saveBannerSettings() {
+    async function saveBannerSettings() {
       bannerTitle = document.getElementById('settingBannerTitle').value.trim();
       bannerSubtitle = document.getElementById('settingBannerSubtitle').value.trim();
       bannerImgUrl = document.getElementById('settingBannerImgUrl').value.trim();
 
-      localStorage.setItem('app_banner_title_v2', bannerTitle);
-      localStorage.setItem('app_banner_subtitle_v2', bannerSubtitle);
-      localStorage.setItem('app_banner_img_v2', bannerImgUrl);
+      if (window.db) {
+        try {
+          await window.setDoc(window.doc(window.db, "config", "store_settings"), {
+            shopName, sellerPhone, adminPin, bannerTitle, bannerSubtitle, bannerImgUrl
+          }, { merge: true });
+        } catch (err) {
+          console.error(err);
+        }
+      }
 
       updateShopUI();
       alert("¡Slogan e imagen de portada actualizados!");
