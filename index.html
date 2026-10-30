@@ -75,7 +75,7 @@
     </div>
   </header>
 
-  <!-- BANNER PRINCIPAL / SLOGAN -->
+  <!-- BANNER PRINCIPAL -->
   <section id="heroBanner" class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-indigo-950 text-white py-10 px-4 transition-all">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
       <div class="space-y-2 text-center md:text-left">
@@ -94,12 +94,23 @@
 
     <!-- VISTA CLIENTE: CATÁLOGO -->
     <div id="clientView" class="space-y-6">
-      <div class="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-        <div class="relative w-full sm:w-80">
+      <div class="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+        <div class="relative w-full md:w-80">
           <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
           <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Buscar producto..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
         </div>
-        <div class="flex items-center space-x-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 custom-scrollbar" id="categoryFilters"></div>
+        
+        <!-- Filtros y Ordenación -->
+        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+          <div class="flex items-center space-x-2 overflow-x-auto pb-1 md:pb-0 custom-scrollbar max-w-xs sm:max-w-md" id="categoryFilters"></div>
+          
+          <!-- Ordenar por Precio -->
+          <select id="sortByPrice" onchange="renderProducts()" class="bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="default">Ordenar: Por defecto</option>
+            <option value="asc">Precio: Menor a Mayor</option>
+            <option value="desc">Precio: Mayor a Menor</option>
+          </select>
+        </div>
       </div>
 
       <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
@@ -211,6 +222,46 @@
     </div>
   </main>
 
+  <!-- MODAL DETALLE DE PRODUCTO (CLIENTE) -->
+  <div id="productDetailModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar relative">
+      <button onclick="closeProductDetailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full z-10">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Galería de Fotos del Producto -->
+        <div class="space-y-3">
+          <div class="h-64 sm:h-72 bg-gray-100 rounded-2xl overflow-hidden border shadow-inner flex items-center justify-center">
+            <img id="detailMainImg" src="" class="w-full h-full object-cover">
+          </div>
+          <div id="detailThumbnails" class="flex gap-2 overflow-x-auto pb-1">
+            <!-- Miniaturas generadas por JS -->
+          </div>
+        </div>
+
+        <!-- Información y Descripción -->
+        <div class="space-y-4 flex flex-col justify-between">
+          <div class="space-y-2">
+            <span id="detailCategory" class="bg-indigo-50 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full inline-block"></span>
+            <h3 id="detailName" class="text-xl font-bold text-gray-900 leading-snug"></h3>
+            <div id="detailStockWarning" class="hidden"></div>
+            <p id="detailPrice" class="text-2xl font-extrabold text-indigo-600"></p>
+            <div class="border-t pt-3 mt-3">
+              <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Descripción Completa</h4>
+              <p id="detailDescription" class="text-sm text-gray-600 whitespace-pre-line leading-relaxed"></p>
+            </div>
+          </div>
+
+          <button id="detailAddToCartBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center space-x-2 transition-all shadow-md">
+            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+            <span>Agregar al Carrito</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL CARRITO -->
   <div id="cartModal" class="fixed inset-0 bg-black/50 z-50 flex justify-end hidden transition-opacity">
     <div class="bg-white w-full max-w-md h-full flex flex-col shadow-2xl">
@@ -282,9 +333,9 @@
     </div>
   </div>
 
-  <!-- MODAL PRODUCTO -->
+  <!-- MODAL CREAR / EDITAR PRODUCTO (HASTA 5 FOTOS) -->
   <div id="productModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex justify-between items-center border-b pb-3">
         <h3 id="productModalTitle" class="font-bold text-lg text-gray-900">Nuevo Producto</h3>
         <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -310,23 +361,24 @@
           <label class="block text-xs font-semibold text-gray-700 mb-1">Categoría *</label>
           <input type="text" id="prodCategory" required class="w-full px-3 py-2 border rounded-xl text-sm outline-none">
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Imagen</label>
-          <div class="space-y-2">
-            <input type="text" id="prodImage" placeholder="URL de la imagen" class="w-full px-3 py-2 border rounded-xl text-sm outline-none">
-            <label class="block w-full px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-semibold cursor-pointer hover:bg-indigo-100 text-center">
-              <span>Seleccionar de Galería</span>
-              <input type="file" id="prodFileInput" accept="image/*" onchange="handleProductFileSelect(event)" class="hidden">
-            </label>
-            <div id="prodImagePreviewContainer" class="hidden w-20 h-20 rounded-xl overflow-hidden border">
-              <img id="prodImagePreview" src="" class="w-full h-full object-cover">
-            </div>
+
+        <!-- HASTA 5 FOTOS -->
+        <div class="space-y-2 border-t pt-2">
+          <label class="block text-xs font-bold text-gray-800">Fotos del Producto (Hasta 5 imágenes)</label>
+          <p class="text-[11px] text-gray-500">Puedes seleccionar varias fotos de tu galería o ingresar URLs.</p>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-2" id="imageSlotsContainer">
+            <!-- Slots generados por JS -->
           </div>
+          <!-- Input oculto para acumular array de imágenes -->
+          <input type="hidden" id="prodImagesJson">
         </div>
+
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Descripción</label>
-          <textarea id="prodDescription" rows="2" class="w-full px-3 py-2 border rounded-xl text-sm outline-none"></textarea>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Descripción Completa</label>
+          <textarea id="prodDescription" rows="3" class="w-full px-3 py-2 border rounded-xl text-sm outline-none"></textarea>
         </div>
+
         <div class="flex space-x-2 pt-2">
           <button type="button" onclick="closeProductModal()" class="w-1/2 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold">Cancelar</button>
           <button type="submit" class="w-1/2 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold">Guardar</button>
@@ -348,9 +400,28 @@
     let bannerSubtitle = 'Selecciona tus artículos favoritos, agrégalos al carrito y haz tu pedido directamente por WhatsApp.';
     let bannerImgUrl = 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=600&auto=format&fit=crop&q=80';
 
+    // Array temporal para las 5 fotos en el modal de producto
+    let currentEditingImages = ['', '', '', '', ''];
+
     const DEFAULT_PRODUCTS = [
-      { id: '1', name: 'Zapatos Deportivos', price: 45.00, stock: 8, category: 'Calzado', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=80', description: 'Zapatos de correr cómodos y ligeros.' },
-      { id: '2', name: 'Camiseta de Algodón', price: 15.50, stock: 15, category: 'Ropa', image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80', description: '100% algodón.' }
+      { 
+        id: '1', 
+        name: 'Zapatos Deportivos', 
+        price: 45.00, 
+        stock: 3, 
+        category: 'Calzado', 
+        images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=500&auto=format&fit=crop&q=80'], 
+        description: 'Zapatos de correr cómodos y ligeros. Ideales para alto rendimiento y entrenamiento diario.' 
+      },
+      { 
+        id: '2', 
+        name: 'Camiseta de Algodón', 
+        price: 15.50, 
+        stock: 12, 
+        category: 'Ropa', 
+        images: ['https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80'], 
+        description: '100% algodón, disponible en varios talles y colores resistentes.' 
+      }
     ];
 
     window.initAppFromFirebase = async function() {
@@ -376,7 +447,16 @@
         }
       } else {
         products = [];
-        querySnapshot.forEach((doc) => { products.push(doc.data()); });
+        querySnapshot.forEach((doc) => { 
+          let data = doc.data();
+          // Compatibilidad con versión anterior que tenía 'image' singular
+          if (!data.images && data.image) {
+            data.images = [data.image];
+          } else if (!data.images) {
+            data.images = ['https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=500&auto=format&fit=crop&q=80'];
+          }
+          products.push(data); 
+        });
       }
 
       const configSnap = await window.getDocs(window.collection(window.db, "config"));
@@ -467,14 +547,24 @@
     function renderProducts() {
       const grid = document.getElementById('productsGrid');
       const search = document.getElementById('searchInput').value.toLowerCase();
+      const sortOrder = document.getElementById('sortByPrice').value;
+
       const categories = ['Todos', ...new Set(products.map(p => p.category))];
       renderCategoryFilters(categories);
 
-      const filtered = products.filter(p => {
+      // Filtrar
+      let filtered = products.filter(p => {
         const matchesCategory = currentCategory === 'Todos' || p.category === currentCategory;
         const matchesSearch = p.name.toLowerCase().includes(search) || p.description.toLowerCase().includes(search);
         return matchesCategory && matchesSearch;
       });
+
+      // Ordenar por precio
+      if (sortOrder === 'asc') {
+        filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+      } else if (sortOrder === 'desc') {
+        filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+      }
 
       if (filtered.length === 0) {
         grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400"><p>No se encontraron productos.</p></div>`;
@@ -484,25 +574,39 @@
 
       grid.innerHTML = filtered.map(p => {
         const isOutOfStock = p.stock <= 0;
+        const isLowStock = p.stock > 0 && p.stock <= 4; // Aviso de poco stock (4 o menos)
+        const coverImg = (p.images && p.images[0]) ? p.images[0] : 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=500&auto=format&fit=crop&q=80';
+
         return `
           <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-            <div>
+            <div class="cursor-pointer" onclick="openProductDetail('${p.id}')">
               <div class="relative h-48 bg-gray-100 overflow-hidden">
-                <img src="${p.image || 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=500&auto=format&fit=crop&q=80'}" class="w-full h-full object-cover">
+                <img src="${coverImg}" class="w-full h-full object-cover">
                 <span class="absolute top-2 left-2 bg-white/90 text-gray-700 text-[10px] font-bold px-2.5 py-1 rounded-full">${p.category}</span>
-                ${isOutOfStock ? '<div class="absolute inset-0 bg-black/60 flex items-center justify-center"><span class="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">Agotado</span></div>' : ''}
+                
+                <!-- Notificación visual en tarjeta: Stock Bajo o Agotado -->
+                ${isOutOfStock ? `
+                  <div class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                    <span class="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow">Agotado</span>
+                  </div>
+                ` : isLowStock ? `
+                  <span class="absolute top-2 right-2 bg-amber-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow flex items-center space-x-1">
+                    <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+                    <span>¡Últimas unidades! (${p.stock})</span>
+                  </span>
+                ` : ''}
               </div>
               <div class="p-4 space-y-2">
-                <h3 class="font-bold text-gray-900 text-base">${p.name}</h3>
+                <h3 class="font-bold text-gray-900 text-base hover:text-indigo-600 transition-colors">${p.name}</h3>
                 <p class="text-xs text-gray-500 line-clamp-2">${p.description}</p>
-                <div class="text-xs font-semibold ${isOutOfStock ? 'text-red-500' : 'text-emerald-600'}">
+                <div class="text-xs font-semibold ${isOutOfStock ? 'text-red-500' : isLowStock ? 'text-amber-600' : 'text-emerald-600'}">
                   ${isOutOfStock ? 'Stock: 0' : `Stock disponible: ${p.stock}`}
                 </div>
               </div>
             </div>
             <div class="p-4 pt-0 flex items-center justify-between gap-2">
               <span class="text-lg font-extrabold text-gray-900">$${parseFloat(p.price).toFixed(2)}</span>
-              <button onclick="addToCart('${p.id}')" ${isOutOfStock ? 'disabled' : ''} class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5">
+              <button onclick="addToCart('${p.id}')" ${isOutOfStock ? 'disabled' : ''} class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all">
                 <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
                 <span>Agregar</span>
               </button>
@@ -525,6 +629,59 @@
       renderProducts();
     }
 
+    // --- MODAL DETALLE DE PRODUCTO (CLIENTE) ---
+    function openProductDetail(productId) {
+      const p = products.find(prod => prod.id === productId);
+      if (!p) return;
+
+      document.getElementById('detailName').innerText = p.name;
+      document.getElementById('detailCategory').innerText = p.category;
+      document.getElementById('detailPrice').innerText = `$${parseFloat(p.price).toFixed(2)}`;
+      document.getElementById('detailDescription').innerText = p.description || 'Sin descripción detallada.';
+      
+      const stockWarning = document.getElementById('detailStockWarning');
+      if (p.stock <= 0) {
+        stockWarning.innerHTML = `<span class="bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full inline-flex items-center space-x-1"><i data-lucide="x-circle" class="w-3 h-3"></i><span>Producto Agotado</span></span>`;
+        stockWarning.classList.remove('hidden');
+        document.getElementById('detailAddToCartBtn').disabled = true;
+        document.getElementById('detailAddToCartBtn').className = "w-full bg-gray-300 text-white py-3 rounded-xl font-semibold cursor-not-allowed";
+      } else if (p.stock <= 4) {
+        stockWarning.innerHTML = `<span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full inline-flex items-center space-x-1"><i data-lucide="alert-triangle" class="w-3 h-3"></i><span>¡Atención! Quedan pocas unidades (${p.stock} disponibles)</span></span>`;
+        stockWarning.classList.remove('hidden');
+        document.getElementById('detailAddToCartBtn').disabled = false;
+        document.getElementById('detailAddToCartBtn').className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center space-x-2 transition-all shadow-md";
+      } else {
+        stockWarning.classList.add('hidden');
+        document.getElementById('detailAddToCartBtn').disabled = false;
+        document.getElementById('detailAddToCartBtn').className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center space-x-2 transition-all shadow-md";
+      }
+
+      document.getElementById('detailAddToCartBtn').onclick = function() {
+        addToCart(p.id);
+        closeProductDetailModal();
+      };
+
+      // Configurar galería de fotos (hasta 5)
+      const imgs = (p.images && p.images.length > 0) ? p.images.filter(img => img) : ['https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=500&auto=format&fit=crop&q=80'];
+      
+      document.getElementById('detailMainImg').src = imgs[0];
+      
+      const thumbContainer = document.getElementById('detailThumbnails');
+      thumbContainer.innerHTML = imgs.map((imgUrl, idx) => `
+        <div onclick="document.getElementById('detailMainImg').src='${imgUrl}'" class="w-16 h-16 rounded-xl overflow-hidden border-2 cursor-pointer hover:border-indigo-600 transition-all flex-shrink-0 bg-gray-100">
+          <img src="${imgUrl}" class="w-full h-full object-cover">
+        </div>
+      `).join('');
+
+      document.getElementById('productDetailModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeProductDetailModal() {
+      document.getElementById('productDetailModal').classList.add('hidden');
+    }
+
+    // --- GESTIÓN DE CARRITO ---
     function addToCart(productId) {
       const product = products.find(p => p.id === productId);
       if (!product || product.stock <= 0) return;
@@ -533,7 +690,7 @@
         if (cartItem.qty < product.stock) cartItem.qty++;
         else { alert(`Límite alcanzado.`); return; }
       } else {
-        cart.push({ ...product, qty: 1 });
+        cart.push({ ...product, image: product.images[0], qty: 1 });
       }
       renderCart();
       toggleCartModal(true);
@@ -656,23 +813,31 @@
       toggleCartModal(false);
     }
 
+    // --- PANEL VENDEDOR / GESTIÓN DE PRODUCTOS ---
     function renderAdminProducts() {
       const tbody = document.getElementById('adminProductsTable');
-      tbody.innerHTML = products.map(p => `
-        <tr class="hover:bg-gray-50">
-          <td class="py-3 px-4 flex items-center space-x-3">
-            <img src="${p.image || ''}" class="w-10 h-10 object-cover rounded-lg">
-            <div><p class="font-bold text-gray-800">${p.name}</p></div>
-          </td>
-          <td class="py-3 px-4">${p.category}</td>
-          <td class="py-3 px-4">$${parseFloat(p.price).toFixed(2)}</td>
-          <td class="py-3 px-4">${p.stock}</td>
-          <td class="py-3 px-4 text-right space-x-2">
-            <button onclick="openProductModal('${p.id}')" class="text-indigo-600"><i data-lucide="pencil" class="w-4 h-4"></i></button>
-            <button onclick="deleteProduct('${p.id}')" class="text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-          </td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = products.map(p => {
+        const cover = (p.images && p.images[0]) ? p.images[0] : '';
+        const countImgs = (p.images) ? p.images.filter(i=>i).length : 0;
+        return `
+          <tr class="hover:bg-gray-50">
+            <td class="py-3 px-4 flex items-center space-x-3">
+              <img src="${cover}" class="w-10 h-10 object-cover rounded-lg">
+              <div>
+                <p class="font-bold text-gray-800">${p.name}</p>
+                <p class="text-[11px] text-gray-400">${countImgs} foto(s) cargada(s)</p>
+              </div>
+            </td>
+            <td class="py-3 px-4">${p.category}</td>
+            <td class="py-3 px-4">$${parseFloat(p.price).toFixed(2)}</td>
+            <td class="py-3 px-4 font-semibold ${p.stock <= 4 ? 'text-amber-600' : ''}">${p.stock}</td>
+            <td class="py-3 px-4 text-right space-x-2">
+              <button onclick="openProductModal('${p.id}')" class="text-indigo-600"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+              <button onclick="deleteProduct('${p.id}')" class="text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </td>
+          </tr>
+        `;
+      }).join('');
       lucide.createIcons();
     }
 
@@ -680,9 +845,8 @@
       const modal = document.getElementById('productModal');
       const title = document.getElementById('productModalTitle');
       const form = document.getElementById('productForm');
-      const preview = document.getElementById('prodImagePreviewContainer');
       form.reset();
-      preview.classList.add('hidden');
+      currentEditingImages = ['', '', '', '', ''];
 
       if (productId) {
         title.innerText = "Editar Producto";
@@ -693,35 +857,66 @@
           document.getElementById('prodPrice').value = p.price;
           document.getElementById('prodStock').value = p.stock;
           document.getElementById('prodCategory').value = p.category;
-          document.getElementById('prodImage').value = p.image;
-          document.getElementById('prodDescription').value = p.description;
-          if (p.image) {
-            document.getElementById('prodImagePreview').src = p.image;
-            preview.classList.remove('hidden');
+          document.getElementById('prodDescription').value = p.description || '';
+          
+          if (p.images) {
+            for (let i = 0; i < 5; i++) {
+              currentEditingImages[i] = p.images[i] || '';
+            }
           }
         }
       } else {
         title.innerText = "Nuevo Producto";
         document.getElementById('prodId').value = "";
       }
+
+      renderImageSlots();
       modal.classList.remove('hidden');
     }
 
-    function closeProductModal() {
-      document.getElementById('productModal').classList.add('hidden');
+    function renderImageSlots() {
+      const container = document.getElementById('imageSlotsContainer');
+      container.innerHTML = '';
+
+      for (let i = 0; i < 5; i++) {
+        const imgVal = currentEditingImages[i];
+        container.innerHTML += `
+          <div class="border rounded-xl p-2 bg-gray-50 space-y-2 flex flex-col justify-between">
+            <span class="text-[10px] font-bold text-gray-500">Foto ${i+1} ${i===0 ? '(Principal)' : ''}</span>
+            <div class="w-full h-20 bg-white rounded-lg border overflow-hidden flex items-center justify-center relative">
+              ${imgVal ? `<img src="${imgVal}" class="w-full h-full object-cover">` : `<i data-lucide="image" class="w-6 h-6 text-gray-300"></i>`}
+            </div>
+            <input type="text" placeholder="URL https://..." value="${imgVal.startsWith('data:') ? '[Imagen local cargada]' : imgVal}" onchange="updateImageSlotUrl(${i}, this.value)" class="w-full px-2 py-1 border rounded text-[11px] outline-none">
+            <label class="w-full py-1 bg-indigo-50 text-indigo-600 rounded text-[10px] font-bold cursor-pointer hover:bg-indigo-100 text-center block">
+              <span>Galería</span>
+              <input type="file" accept="image/*" onchange="handleImageSlotFile(event, ${i})" class="hidden">
+            </label>
+          </div>
+        `;
+      }
+      lucide.createIcons();
     }
 
-    function handleProductFileSelect(event) {
+    function updateImageSlotUrl(index, val) {
+      if (!val.startsWith('[Imagen')) {
+        currentEditingImages[index] = val;
+      }
+    }
+
+    function handleImageSlotFile(event, index) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          document.getElementById('prodImage').value = e.target.result;
-          document.getElementById('prodImagePreview').src = e.target.result;
-          document.getElementById('prodImagePreviewContainer').classList.remove('hidden');
+          currentEditingImages[index] = e.target.result;
+          renderImageSlots();
         };
         reader.readAsDataURL(file);
       }
+    }
+
+    function closeProductModal() {
+      document.getElementById('productModal').classList.add('hidden');
     }
 
     async function handleProductSubmit(e) {
@@ -731,10 +926,15 @@
       const price = parseFloat(document.getElementById('prodPrice').value);
       const stock = parseInt(document.getElementById('prodStock').value);
       const category = document.getElementById('prodCategory').value;
-      const image = document.getElementById('prodImage').value;
       const description = document.getElementById('prodDescription').value;
 
-      const productData = { id, name, price, stock, category, image, description };
+      // Filtrar slots vacíos
+      const finalImages = currentEditingImages.filter(img => img && img.trim() !== '');
+      if (finalImages.length === 0) {
+        finalImages.push('https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=500&auto=format&fit=crop&q=80');
+      }
+
+      const productData = { id, name, price, stock, category, images: finalImages, description };
       if (window.db) {
         await window.setDoc(window.doc(window.db, "products", id), productData);
       }
